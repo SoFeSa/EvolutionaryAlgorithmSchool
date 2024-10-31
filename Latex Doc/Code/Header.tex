@@ -1,0 +1,140 @@
+\documentclass[11pt, a4paper, onecolumn,  abstracton, bibliography=totoc]{scrartcl} 
+
+\usepackage{silence}
+\WarningFilter{titlesec}{Non standard sectioning command}
+%%%%%%%%%%%%%%%%%%%% Sprache & Zeichen %%%%%%%%%%%%%%%%%%%%%
+\usepackage[english]{babel}    %Englisch und Deutsch
+\usepackage{lmodern}    %Scharfe Schrift
+\usepackage[T1]{fontenc}    %T1 als Zeichensatz mit Umlaute für         pdf
+\usepackage[utf8x]{inputenc}    %für Umlaute
+\usepackage[output-decimal-marker={,},exponent-product=\cdot]{siunitx} %einfache Darstellung von Einheiten z.B:             
+    %\SI{-273,15}{\degree\celsius} oder 
+    %15~\si{\newton\per\square\meter}
+	\sisetup{locale = DE , per-mode = symbol}   %Einstellungen     dazu
+\usepackage{csquotes}   %gute Darstellung der                             Anführungszeichen
+\usepackage{fancyhdr}   %Fußzeilen
+\usepackage{titletoc}   %Darstellung von Überschriften im                 Inhaltsverzeichnis
+\usepackage{amsmath} %verschiedene                     Gleichungsumgebungen erlaubt Integrale
+\usepackage{textcomp}   %spez. Zeichen wie copyright, Musiknote
+\usepackage{pxfonts}    %griechisches Alphabet
+\usepackage{latexsym}   %ein paar sehr specialige Mathesymbole
+\usepackage{amssymb}    %diverse gebräuchliche Mathesymbole
+%\usepackage[version=3]{mhchem}	%chemische Symbole
+\usepackage{textcomp}   %Euro-Zeichen mit \texteuro
+\usepackage[colorlinks, pdfpagelabels,                             pdfstartview=FitH,bookmarksopen=true,                          bookmarksnumbered=true,linkcolor=black, plainpages=false,      hypertexnames=false, citecolor=black,                          urlcolor=black]{hyperref} %erlaubt in Tabellen den             Spaltentyp S dann werden alle Zahlen am Dezimaltrennzeichen     ausgerichtet, Prozent -> Prozentzeichen
+\usepackage[ddmmyyyy, nodayofweek]{datetime}
+%%%%%%%%%%%%%%%%%%%%%%%% Literatur %%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{chapterbib}    %Bib je Kapitel
+\usepackage{bibgerm}    %deutsches Literaturverz.
+\usepackage[round]{natbib}  %Benutzerdefiniertes Zitieren
+\usepackage{cite}   %verbessertes Zitieren
+\bibliographystyle{apalike}		%deutsche zitierweise
+\setcitestyle{authoryear,open={(}, close={)}} %finetuning lit.     Verzeichnis nach Dirks
+\usepackage{multibib} % ermöglicht die Verwendung mehrerer         BibTeX-Dateien und mehrerer Literaturverzeichnisse 
+\newcites{others}{Other Sources}   %referiert auf         Sonstige Quellen bei \citesonstige{...}
+\bibliographystyleothers{apalike}  %Zitierstil von     neuer Bib 
+\newcites{patents}{Patents and Norms}   %referiert auf         Sonstige Quellen bei \citesonstige{...}
+\bibliographystylepatents{apalike}  %Zitierstil von     neuer Bib 
+
+%%%%%%%%%%%%%%%%%%%%%%%% Abb./Tab. %%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{graphicx}   %Einbindung von Abb. möglich
+\usepackage{wrapfig}    %Figures von Text umflossen
+\usepackage[font={footnotesize}]{caption} %Unterschrift,        veränderliches Aussehen in der ersten Klammer
+\usepackage{float}  %Stelle für Figure [..] spezifiziert
+\usepackage{subcaption} %Unterunterschrift
+%\usepackage{subfigure} %Unterschrift für versch. Figures
+\usepackage{booktabs}   %horizontale Linien in Tabelle
+\usepackage{multirow}   %Zelle in Tabelle von mehreren Zeilen
+%\usepackage{slashbox}   %Zelle in Tabelle durch Diagonale         getrennt
+\usepackage{diagbox}    %Zelle in Tabelle durch Diagonale         getrennt
+\usepackage{pdfpages}
+\usepackage{overpic}
+\usepackage{svg}
+%%%%%%%%%%%%%%%%%%%%%% Außerliches %%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}   %Seitenränder
+\usepackage[onehalfspacing]{setspace} %Zeilenabstand
+\usepackage{nameref}    %Querverweise
+\usepackage{comment}    %Überspring Absätze wie zB Kommentare
+\usepackage{ragged2e}   %erlaubt links-/rechtsbündig etc.
+\usepackage{pdflscape} %landscape für Querformat
+\usepackage{url}    %ermöglicht Trennen an best. Zeichen
+%\usepackage[table,xcdraw]{xcolor} %Veränderung von Schriftfarbe
+\usepackage[page,header]{appendix}  %Anhang
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{todonotes}
+\usepackage{mathtools}
+
+\usepackage{tikz} % Required for drawing custom shapes
+\usetikzlibrary{arrows}
+\usetikzlibrary{math}
+\usetikzlibrary{calc}
+\usetikzlibrary{angles,quotes}
+\usetikzlibrary{shapes, decorations}
+\usepackage{tkz-euclide}
+%%%%%%%%%%%%%%%%% Veränderung von Befehlen %%%%%%%%%%%%%%%%%%%%
+\setlength{\parindent}{0pt} %% entfernt Einrückung 
+%\newcommand{\Abkürzung}{Abkürzung für ...} %Kurzbefehle
+%\renewcommand{\figureautorefname}{Abb.}  %Veränderung von                                vorhandenen Bildunterschirften
+%\renewcommand{\tableautorefname}{Tab.}
+%\setlength{\footskip}{30pt}
+\renewcommand{\cftsecfont}{\scshape\fontfamily{phv}\selectfont}
+
+\renewcommand{\cftsubsecfont}{\scshape\fontfamily{phv}\selectfont}
+\renewcommand{\cftsubsecpagefont}{\scshape\fontfamily{phv}\selectfont}
+\renewcommand{\cftsubsubsecfont}{\scshape\fontfamily{phv}\selectfont}
+\renewcommand{\cftsubsubsecpagefont}{\scshape\fontfamily{phv}\selectfont}
+
+
+\renewcommand{\cftpartfont}{\scshape\fontfamily{phv}\selectfont}
+\renewcommand{\cftpartpagefont}{\scshape\fontfamily{phv}\selectfont}
+
+\renewcommand{\cftloftitlefont}{\Large\scshape\fontfamily{phv}\selectfont}
+\renewcommand{\cftfigfont}{\large\scshape\fontfamily{phv}\selectfont}
+\renewcommand{\cftfigpagefont}{\scshape\fontfamily{phv}\selectfont}
+
+\renewcommand{\cftlottitlefont}{\Large\scshape\fontfamily{phv}\selectfont}
+\renewcommand{\cfttabfont}{\large\scshape\fontfamily{phv}\selectfont}
+\renewcommand{\cfttabpagefont}{\scshape\fontfamily{phv}\selectfont}
+
+\renewcommand{\cftsecaftersnum}{.}
+
+\newcommand{\HR}[1]{{\color{HR} #1}}
+\definecolor{HR}{HTML}{ffa233}
+
+\urlstyle{own}
+
+\makeatletter
+\def\url@ownstyle{%
+  \@ifundefined{selectfont}{\def\UrlFont{\sf}}{\def\UrlFont{\small\ttfamily}}}
+
+\titleformat{\section} % command
+    [block] % shape
+    {\Large\scshape\fontfamily{phv}\selectfont} % format
+    {\thesection.} % label
+    {1ex} % sep
+    {} % before-code
+    [\vspace{-2ex} \rule{\textwidth}{0.3pt}] % after-code
+\titleformat{\subsection} % command
+    [block] % shape
+    {\large\scshape\fontfamily{phv}\selectfont} % format
+    {\thesubsection} % label
+    {1ex} % sep
+    {} % before-code
+    [\vspace{-2ex} \rule{\textwidth}{0.3pt} \vspace{-4.5ex}] % after-code
+\titleformat{\subsubsection} % command
+    [block] % shape
+    {\large\scshape\fontfamily{phv}\selectfont} % format
+    {\thesubsubsection} % label
+    {1ex} % sep
+    {} % before-code
+    [\vspace{-2ex} \rule{\textwidth}{0.3pt} \vspace{-4.5ex}] % after-code
+\titleformat{\part} % command
+    [block] % shape
+    {\LARGE\scshape\fontfamily{phv}\selectfont} % format
+    {} % label
+    {1ex} % sep
+    {} % before-code
+    [\vspace{-2ex} \rule{\textwidth}{0.3pt}\vspace{-2.7ex} \rule{\textwidth}{0.3pt}] % after-code
+\makeatother
+

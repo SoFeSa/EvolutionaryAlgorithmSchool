@@ -1,0 +1,53 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+Reallocating 'name_of_file' (item size: 1) to 8 items.
+The style file: apalike.bst
+Reallocating 'name_of_file' (item size: 1) to 26 items.
+Database file #1: References/Literature.bib
+Warning--entry type for "Quantita2020" isn't style-file defined
+--line 32 of file References/Literature.bib
+Warning--entry type for "Klassnebildung2020" isn't style-file defined
+--line 40 of file References/Literature.bib
+You've used 9 entries,
+            1935 wiz_defined-function locations,
+            522 strings with 5351 characters,
+and the built_in function-call counts, 3271 in all, are:
+= -- 325
+> -- 118
+< -- 8
++ -- 40
+- -- 38
+* -- 247
+:= -- 573
+add.period$ -- 25
+call.type$ -- 9
+change.case$ -- 62
+chr.to.int$ -- 9
+cite$ -- 9
+duplicate$ -- 135
+empty$ -- 225
+format.name$ -- 51
+if$ -- 643
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 9
+newline$ -- 46
+num.names$ -- 27
+pop$ -- 58
+preamble$ -- 1
+purify$ -- 64
+quote$ -- 0
+skip$ -- 115
+stack$ -- 0
+substring$ -- 218
+swap$ -- 25
+text.length$ -- 2
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 50
+warning$ -- 0
+while$ -- 28
+width$ -- 0
+write$ -- 110
+(There were 2 warnings)

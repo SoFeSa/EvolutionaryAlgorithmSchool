@@ -1,0 +1,56 @@
+\begin{thebibliography}{}
+
+\bibitem[Bartz-Beielstein et~al., 2014]{bartz2014evolutionary}
+Bartz-Beielstein, T., Branke, J., Mehnen, J., and Mersmann, O. (2014).
+\newblock Evolutionary algorithms.
+\newblock {\em Wiley Interdisciplinary Reviews: Data Mining and Knowledge
+  Discovery}, 4(3):178--195.
+
+\bibitem[der Ständigen Konferenz der Kultusminister der Länder in~der
+  Bundesrepublik~Deutschland, 2020]{Klassnebildung2020}
+der Ständigen Konferenz der Kultusminister der Länder in~der
+  Bundesrepublik~Deutschland, S. (2020).
+\newblock {Vorgaben für die Klassenbildung 2020/2021}.
+
+\bibitem[für Schule und Bildung~des Landes Nordrhein-Westfalen,
+  2021]{Quantita2020}
+für Schule und Bildung~des Landes Nordrhein-Westfalen, M. (2021).
+\newblock {Das Schulwesen in Nordrhein-Westfalen aus quantitativer Sicht
+  2020/21 - Statistische Übersicht Nr. 413}.
+
+\bibitem[Hallinan and Tuma, 1978]{hallinan1978classroom}
+Hallinan, M.~T. and Tuma, N.~B. (1978).
+\newblock Classroom effects on change in children's friendships.
+\newblock {\em Sociology of Education}, pages 270--282.
+
+\bibitem[Michalewicz and Fogel, 2013]{michalewicz2013solve}
+Michalewicz, Z. and Fogel, D.~B. (2013).
+\newblock {\em {How to Solve It: Modern Heuristics}}.
+\newblock Springer Science \& Business Media.
+
+\bibitem[Ojha et~al., 2019]{ojha2019review}
+Ojha, M., Singh, K.~P., Chakraborty, P., and Verma, S. (2019).
+\newblock A review of multi-objective optimisation and decision making using
+  evolutionary algorithms.
+\newblock {\em International Journal of Bio-Inspired Computation},
+  14(2):69--84.
+
+\bibitem[Schneider, 2013]{schneider2013school}
+Schneider, T. (2013).
+\newblock School class composition and student development in cognitive and
+  non-cognitive domains: longitudinal analyses of primary school students in
+  germany.
+\newblock {\em Integration and inequality in educational institutions}, pages
+  167--190.
+
+\bibitem[Zhang et~al., 2014]{zhang2014equality}
+Zhang, H., Chan, P. W.~K., and Boyle, C. (2014).
+\newblock {\em {Equality in education: Fairness and Inclusion}}.
+\newblock Springer.
+
+\bibitem[Zitzler, 2001]{zitzler2001spea2}
+Zitzler, E. (2001).
+\newblock Spea2: Improving the strength pareto evolutionary algorithm.
+\newblock {\em TIK Report}.
+
+\end{thebibliography}

@@ -1,0 +1,31 @@
+%%%%%%%%%%%%%%%%%%%%%% Anhang %%%%%%%%%%%%%%%%%%%%%%%%%
+\titleformat{\section} % command
+    [block] % shape
+    {\LARGE\scshape\fontfamily{ptm}\selectfont} % format
+    {\thesection.} % label
+    {1ex} % sep
+    {} % before-code
+    [\vspace{-2ex} \rule{\textwidth}{0.3pt}\vspace{-2.7ex} \rule{\textwidth}{0.3pt}] % after-code
+\newpage
+\pagenumbering{Roman}
+\setcounter{page}{1}
+\section{Appendix}
+\titleformat{\section} % command
+    [block] % shape
+    {\Large\scshape\fontfamily{ptm}\selectfont} % format
+    {\thesection.} % label
+    {1ex} % sep
+    {} % before-code
+    [\vspace{-2ex} \rule{\textwidth}{0.3pt}] % after-code
+\section*{Table of Contents}
+\startcontents[sections]
+\printcontents[sections]{l}{1}{\setcounter{tocdepth}{3}}
+
+\setcounter{figure}{0}
+\setcounter{table}{0}
+\setcounter{section}{0}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thefigure}{\Alph{figure}}
+\renewcommand{\thetable}{\Alph{table}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage

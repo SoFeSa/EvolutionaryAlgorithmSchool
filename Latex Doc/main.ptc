@@ -1,0 +1,19 @@
+\babel@toc {english}{}\relax 
+\babel@toc {english}{}\relax 
+\ttl@starttoc {sections@1}
+\contentsline {section}{\numberline {1}Introduction}{4}{section.2}%
+\contentsline {subsection}{\numberline {1.1}Evolutionary Algorithms}{5}{subsection.3}%
+\contentsline {subsection}{\numberline {1.2}Evolutionary Algorithms for multi-objective optimization Problems}{6}{subsection.10}%
+\contentsline {subsection}{\numberline {1.3}Aim of this Work}{6}{subsection.11}%
+\contentsline {section}{\numberline {2}Material and Methods}{7}{section.12}%
+\contentsline {subsection}{\numberline {2.1}System Requirements}{7}{subsection.13}%
+\contentsline {subsection}{\numberline {2.2}Implementation}{7}{subsection.18}%
+\contentsline {subsubsection}{\numberline {2.2.1}Creation of Candidates(Individuals)}{7}{subsubsection.19}%
+\contentsline {subsubsection}{\numberline {2.2.2}Implementation of fitness}{8}{subsubsection.22}%
+\contentsline {subsubsection}{\numberline {2.2.3}Reproduction}{10}{subsubsection.30}%
+\contentsline {subsubsection}{\numberline {2.2.4}Evolution}{10}{subsubsection.31}%
+\contentsline {section}{\numberline {3}Results}{10}{section.32}%
+\contentsline {section}{\numberline {4}Discussion}{10}{section.33}%
+\contentsline {section}{\numberline {5}Conclusion}{10}{section.34}%
+\contentsline {subsection}{\numberline {5.1}Other Sources}{12}{subsection.35}%
+\contentsfinish 
