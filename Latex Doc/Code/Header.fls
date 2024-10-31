@@ -1,6 +1,6 @@
-PWD c:\Users\sophi\OneDrive\Desktop\WiSe2425\ARP\Latex Doc\Code
+PWD c:\Users\sophi\OneDrive\Desktop\WiSe2425\ARP\EvolutionaryAlgorithmSchool\Latex Doc\Code
 INPUT C:\Users\sophi\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT c:\Users\sophi\OneDrive\Desktop\WiSe2425\ARP\Latex Doc\Code\Header.tex
+INPUT c:\Users\sophi\OneDrive\Desktop\WiSe2425\ARP\EvolutionaryAlgorithmSchool\Latex Doc\Code\Header.tex
 OUTPUT Header.log
 INPUT C:\Users\sophi\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrartcl.cls
 INPUT C:\Users\sophi\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrartcl.cls

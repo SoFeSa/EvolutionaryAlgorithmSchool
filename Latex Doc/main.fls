@@ -1,6 +1,6 @@
-PWD c:\Users\sophi\OneDrive\Desktop\WiSe2425\ARP\Latex Doc
+PWD c:\Users\sophi\OneDrive\Desktop\WiSe2425\ARP\EvolutionaryAlgorithmSchool\Latex Doc
 INPUT C:\Users\sophi\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT c:\Users\sophi\OneDrive\Desktop\WiSe2425\ARP\Latex Doc\main.tex
+INPUT c:\Users\sophi\OneDrive\Desktop\WiSe2425\ARP\EvolutionaryAlgorithmSchool\Latex Doc\main.tex
 OUTPUT main.log
 INPUT .\Code\Header.tex
 INPUT .\Code\Header.tex
