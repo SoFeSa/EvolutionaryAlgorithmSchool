@@ -125,6 +125,7 @@ int main(void) {
             }
         }
         displaySol(cand[numcand], cand[numcand].class_sizes);
+        calcFitness(&cand[numcand]);
     }
     return EXIT_SUCCESS;
 }
@@ -313,75 +314,105 @@ void displaySol(individual cand, int class_size[]) {
     
 }
 
-/*
+
 
 void calcFitness(individual *cand){
 /*A reference value is needed to calculate the fitness, as it is important to calculate the difference
 of the mean of the value sex, hyperact, logskill, langskill of all students and the students of each class*/
-  /*  int u;
+    int u;
     double z = 0;
+    double k = 0;
     for (u = 0; u < NUM_STUD; u++) {
         z = z + cand->genome[u][SEX];
+
     }
     double meansex = z/NUM_STUD;
+    for (u = 0; u < NUM_STUD; u++) {
+        k = k + ((meansex - cand->genome[u][SEX])*(meansex - cand->genome[u][SEX]));
+
+    }
+    double sdsex = sqrt(k/NUM_STUD);
+
+
 
     printf("Mean SEX: %lf \n", meansex);
     z = 0;
+    k = 0;
     for (u = 0; u < NUM_STUD; u++) {
         z = z + cand->genome[u][HYPERACT];
     }
     double meanhyp = z/NUM_STUD;
+    for (u = 0; u < NUM_STUD; u++) {
+        k = k + ((meanhyp - cand->genome[u][HYPERACT])*(meanhyp - cand->genome[u][HYPERACT]));
+
+    }
+    double sdhyp = sqrt(k/NUM_STUD);
+    
     printf("Mean Hyperact: %lf \n", meanhyp);
 
     z = 0;
+    k = 0;
     for (u = 0; u < NUM_STUD; u++) {
         z = z + cand->genome[u][LOGSKILL];
     }
     double meanlogskill = z/NUM_STUD;
+    for (u = 0; u < NUM_STUD; u++) {
+        k = k + ((meanlogskill - cand->genome[u][LOGSKILL])*(meanlogskill - cand->genome[u][LOGSKILL]));
+
+    }
+    double sdlogskill = sqrt(k/NUM_STUD);
     printf("Mean Logical Skill: %lf \n", meanlogskill);
     
+
+
     z = 0;
+    k = 0;
     for (u = 0; u < NUM_STUD; u++) {
         z = z + cand->genome[u][LANGUAGESKILL];
     }
     double meanlangkill = z/NUM_STUD;
+    for (u = 0; u < NUM_STUD; u++) {
+        k = k + ((meanlangkill - cand->genome[u][LANGUAGESKILL])*(meanlangkill - cand->genome[u][LANGUAGESKILL]));
+
+    }
+    double sdlangkill = sqrt(k/NUM_STUD);
+
     printf("Mean Language Skill: %lf \n", meanlangkill);
 
 /*next step is to calculate the mean values for each class and the overall fitness for the cnand*/
- /*   int count;
+   int count;
 //Calc for SEX
-    int k = 0;
     double m = 0;
+    k = 0;
+    int l;
+    double sdSexClass[NUM_CLASSES]; 
     double meansexClass[NUM_CLASSES];
     double fitsexClass[NUM_CLASSES];
-    for (u = 0; u < cand->classbreak[k]; u++) {
-            m = m + cand->genome[u][SEX];
+    for (l = 0;l<NUM_CLASSES;l++){
+        for (u = 0; u < NUM_STUD; u++) {
+            if (cand->genome[u][CLASS_VALUE]==l){
+                m = m + cand->genome[u][SEX];
+            }
+        meansexClass[l] = m / cand->class_sizes[l];  
+        for (u = 0; u < NUM_STUD; u++) {
+            if (cand->genome[u][CLASS_VALUE]==l){
+                k = k + ((meansexClass[l] - cand->genome[u][SEX])*(meansexClass[l] - cand->genome[u][SEX]));
+            } 
+        sdSexClass[l] = sqrt(k/cand->class_sizes[l]);  
         }
-    meansexClass[k] = m/cand->classbreak[k];
-    fitsexClass[k] = fabs(meansexClass[k]-meansex);
-    printf("Mean Class %d: %lf \n", k, meansexClass[k]);
-    printf("Fitness Class %d: %lf \n", k, fitsexClass[k]);
-
-    count = cand->classbreak[k];
-    for (k = 1; k < NUM_CLASSES; k++){
-    for (u = count; u < count+cand->classbreak[k]; u++) {
-            m = m + cand->genome[u][SEX];
-        }
-    count = count+cand->classbreak[k];  
-    meansexClass[k] = m/cand->classbreak[k];
-    fitsexClass[k] = fabs(meansexClass[k]-meansex);
-    printf("Mean Class %d: %lf \n", k, meansexClass[k]);
-    printf("Fitness Class %d: %lf \n", k, fitsexClass[k]);  
-    m = 0;
     }
-    double fitSex = 0; 
-    for (u = 0; u < NUM_CLASSES; u++) {
-            fitSex = fitSex + fitsexClass[u];
-        }
-    printf("overall Fitness Class: %lf \n", fitSex);
-
+    double overall_fitSex = 0;
+    for (l= 0; l<NUM_CLASSES; l++){
+        fitsexClass[l] = fabs(meansexClass[l]-meansex) + fabs(sdSexClass[l]-sdsex);
+        printf("Mean Class %d: %lf \n", l, meansexClass[l]);
+        printf("Fitness Class %d: %lf \n", l, fitsexClass[l]);
+        overall_fitSex = overall_fitSex + fitsexClass[l];
+    }
+    printf("Fitness SEX: %lf \n",  overall_fitSex);
+    }
+}
 //Calc for HYPERACT
-    m = 0;
+ /*   m = 0;
     k = 0;
     double meanhypClass[NUM_CLASSES];
     double fithypClass[NUM_CLASSES];
@@ -476,7 +507,7 @@ of the mean of the value sex, hyperact, logskill, langskill of all students and 
 /*For the friendships there is an ideal value of 0 which can be accomplished when all students have 3 friend entered
 and all 3 friend of all students are in a class together. The reason for this is to accomplish a multi.objective fitness
 were ideally all fitness values are 0*/
- /*   int allfriend = NUM_STUD*3;
+/*    int allfriend = NUM_STUD*3;
     printf("overall Fitness Friends Class: %d \n", allfriend); 
     int fitfriendsclass[NUM_CLASSES];
  // Loop to calculate fitness for each class

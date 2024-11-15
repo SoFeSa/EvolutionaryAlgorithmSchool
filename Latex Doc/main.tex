@@ -210,7 +210,10 @@ The following non-functional requirements for the first basic version are define
 \subsection{Implementation}
 The Evolutionary Algorithm to solve the problem was implemented is several separated steps.
 \subsubsection{Creation of Candidates(Individuals)}
-For creating a candidate (a class distribution) the first step is to implement the students themselves and their characteristics. The values for characteristics are shown in Table \ref{Tab:values}.
+For creating a candidate (a class distribution) 
+the first step is to implement the students themselves 
+and their characteristics. The values for characteristics 
+are shown in Table \ref{Tab:values}.
 
 
 \begin{table} [H]
@@ -221,7 +224,7 @@ For creating a candidate (a class distribution) the first step is to implement t
     
     \begin{tabular}{c|c|c|c}
         no. & characteristics  & possible values & value in code \\ \hline \hline
-        0 & Student number & 0 to 58 &  0 to 58 \\\hline 
+        0 & Student number & 0 to (no. of students - 1) &  0 to (no. of students - 1) \\\hline 
 
         1 & Sex & male, female &  0,1\\ \hline
 
@@ -231,8 +234,8 @@ For creating a candidate (a class distribution) the first step is to implement t
         
         4 & Language skill level& very low, low, average, high, very high & 0 to 4    \\\hline 
         
-        5 & Friendships & respective student no. 0 to 58  (max. 3) & 0 to 58, 0 to 58, 0 to 58    \\\hline 
-        
+        5-7 & Friendships & respective student no. & 0 to (no. of students - 1), 0 to (no. of students - 1), 0 to (no. of students - 1)    \\\hline 
+        8 & Class & 0 to (no. of classes-1)& 0 to  (no. of classes-1) \\\hline 
         
     \end{tabular}
 \end{table}

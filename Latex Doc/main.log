@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.4)  31 OCT 2024 16:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.4)  15 NOV 2024 16:18
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -2312,18 +2312,23 @@ Underfull \hbox (badness 10000) in paragraph at lines 154--162
 
 [6]
 LaTeX Font Info:    Font shape `T1/pxr/b/n' in size <9> not available
-(Font)              Font shape `T1/pxr/bx/n' tried instead on input line 218.
+(Font)              Font shape `T1/pxr/bx/n' tried instead on input line 221.
+
+Overfull \hbox (249.59041pt too wide) in paragraph at lines 225--241
+ [][] 
+ []
+
 
 
 [7]
 
 [8]
-Underfull \hbox (badness 10000) in paragraph at lines 293--298
+Underfull \hbox (badness 10000) in paragraph at lines 296--301
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 299--301
+Underfull \hbox (badness 10000) in paragraph at lines 302--304
 
  []
 
@@ -2384,7 +2389,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  113i,8n,120p,11004b,1178s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/public/pxfonts/pxex.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/public/pxfonts/pxsy.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/public/pxfonts/rpcxr.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/public/pxfonts/rpxmi.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/public/pxfonts/rpxr.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/public/txfonts/t1xtt.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvr8a.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplb8a.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplr8a.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/urw/palatino/uplri8a.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/sophi/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (13 pages, 211715 bytes).
+Output written on main.pdf (13 pages, 211977 bytes).
 PDF statistics:
  296 PDF objects out of 1000 (max. 8388607)
  60 named destinations out of 1000 (max. 500000)
