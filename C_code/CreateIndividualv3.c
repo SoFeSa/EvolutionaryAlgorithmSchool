@@ -41,7 +41,7 @@ In this version the individuals are created differently:
 /*******************************/
 /* definitions for readability */
 /*******************************/
-#define POP_SIZE 1
+#define POP_SIZE 6
 
 //defines the maximal and minimal number of children allowed in one class
 #define MIN_CLASS 2
@@ -74,7 +74,7 @@ In this version the individuals are created differently:
 #define VERY_HIGH 4
 
 //number of students
-#define NUM_STUD 10
+#define NUM_STUD 12
 
 
 #define NUM_ATTRIBUTES 9
@@ -144,7 +144,7 @@ int main(void) {
 /*******************************/
 
 int createStudents(student stud[NUM_STUD]) {
-    srand(1);
+    srand(2);
     int z,p;
     for (z = 0; z < NUM_STUD; z++) {
         for (p = 5; p < 8;p ++){
@@ -175,126 +175,58 @@ int createStudents(student stud[NUM_STUD]) {
 
 
         //implementation of the friends, difficult...
-        int num_friend = rand() % 4;//4 as there is a possibility of no friends
-        
-        int x = FRIEND1 + num_friend;
-        int b;
-        for (l = FRIEND1; l < x; l ++){
-            int rand_stud = rand() % NUM_STUD;
-            while (rand_stud == k) {
-                 int rand_stud = rand() % NUM_STUD;
+         int num_friends = rand() % 4; // Number of friends (0 to 3)
+        for (int f = 0; f < num_friends; f++) {
+            int rand_stud;
+
+            // Find a random student who is not already a friend and is not self
+            do {
+                rand_stud = rand() % NUM_STUD;
+            } while (rand_stud == k || 
+                     stud[k].attr[FRIEND1] == rand_stud || 
+                     stud[k].attr[FRIEND2] == rand_stud || 
+                     stud[k].attr[FRIEND3] == rand_stud);
+
+            // Add friend bidirectionally
+            int added_to_k = 0; // Use integers to simulate boolean (0 = false, 1 = true)
+            int added_to_rand_stud = 0;
+
+            // Add rand_stud to k's friends
+            for (int i = FRIEND1; i <= FRIEND3; i++) {
+                if (stud[k].attr[i] == NUM_STUD) {
+                    stud[k].attr[i] = rand_stud;
+                    added_to_k = 1;
+                    break;
+                }
             }
-            if (stud[k].attr[l] == NUM_STUD && stud[rand_stud].attr[FRIEND1] == NUM_STUD){
-                stud[k].attr[l] = rand_stud; 
-                stud[rand_stud].attr[5] = k; 
-    
+
+            // Add k to rand_stud's friends
+            for (int i = FRIEND1; i <= FRIEND3; i++) {
+                if (stud[rand_stud].attr[i] == NUM_STUD) {
+                    stud[rand_stud].attr[i] = k;
+                    added_to_rand_stud = 1;
+                    break;
+                }
             }
-           if (stud[k].attr[l] == NUM_STUD && stud[rand_stud].attr[FRIEND1] != NUM_STUD){
-                for (b = FRIEND1+1; b < FRIEND3+1; b++){
-                    if (stud[k].attr[l] == NUM_STUD && stud[rand_stud].attr[b] == NUM_STUD){
-                        stud[k].attr[l] = rand_stud; 
-                        stud[rand_stud].attr[b] = k;
-                        b == 9;
+
+            // If only one side was added, remove the incomplete friendship
+            if (!added_to_k || !added_to_rand_stud) {
+                for (int i = FRIEND1; i <= FRIEND3; i++) {
+                    if (stud[k].attr[i] == rand_stud) {
+                        stud[k].attr[i] = NUM_STUD;
+                        break;
                     }
                 }
-                if (b !=  9){
-                    int rand_stud_count;
-                    for (rand_stud_count = rand_stud+1; rand_stud_count != rand_stud;rand_stud_count++){
-                        if (rand_stud_count == NUM_STUD){
-                           rand_stud_count = 0; 
-                        }
-                        if (stud[rand_stud_count].attr[FRIEND1] == NUM_STUD){
-                            stud[k].attr[l] = rand_stud_count; 
-                            stud[rand_stud_count].attr[5] = k;
-                            rand_stud_count = rand_stud;
-                        }
-                        if (stud[rand_stud_count].attr[5] != NUM_STUD){
-                            int s;
-                            for (s = 6; s < 8; s++){
-                                if (stud[k].attr[l] == NUM_STUD && stud[rand_stud_count].attr[s] == NUM_STUD){
-                                    stud[k].attr[l] = rand_stud_count; 
-                                    stud[rand_stud_count].attr[s] = k;
-                                    s == 9;
-                                    rand_stud_count = rand_stud;
-                                }
-                            }
-                        }
-
+                for (int i = FRIEND1; i <= FRIEND3; i++) {
+                    if (stud[rand_stud].attr[i] == k) {
+                        stud[rand_stud].attr[i] = NUM_STUD;
+                        break;
                     }
                 }
-           
-
-    
             }
-            
-           
         }
-
     }
-
-        //implementation of classes
-        int i,v,g;
-       
-        int norm_classsize = NUM_STUD/NUM_CLASSES;
-        
-        int left = NUM_STUD % NUM_CLASSES;
-        int class_size[NUM_CLASSES];
-        for (i=0; i< NUM_CLASSES; i++){
-            class_size[i] = norm_classsize;
-
-        }
-        i = 0;
-        v = 0;
-        while (v<left){
-            class_size[i] = class_size[i] + 1;
-            i++;
-            v++;
-        }
-        if (norm_classsize-3 < MIN_CLASS && norm_classsize+3 > MAX_CLASS){
-            for (i = 0; i < 20 ; i++){
-                int rand_swap1 = rand() % NUM_CLASSES;
-                int rand_swap2 = rand() % NUM_CLASSES;
-                class_size[rand_swap1]=class_size[rand_swap1]+1;
-                class_size[rand_swap2]=class_size[rand_swap2]-1;
-
-            }
-            for (t=0; t<NUM_CLASSES; t++){
-                if (class_size[t] < MIN_CLASS && class_size[t] > MAX_CLASS){
-                    for (i=0; i< NUM_CLASSES; i++){
-                        class_size[i] = norm_classsize;
-
-                    }
-                    i = 0;
-                    v = 0;
-                    while (v<left){
-                        class_size[i] = class_size[i] + 1;
-                        i++;
-                        v++;
-                    }
-                    
-
-                }
-
-            }
-
-        }
-        int class_size_count[NUM_CLASSES];
-        for (t=0; t<NUM_CLASSES; t++){
-            class_size_count[t] = class_size[t];
-        }
-        for (g=0; g< NUM_STUD; g++){
-            int class_num = rand() % NUM_CLASSES;
-            
-            while (class_size_count[class_num] == 0){
-                class_num = rand() % NUM_CLASSES;
-            }
-            if (class_size_count[class_num] > 0){
-                stud[g].attr[CLASS_VALUE] = class_num;
-                class_size_count[class_num]--;
-            }
-            
-        }
-    return class_size;    
+   
     return 0;
 }
 
