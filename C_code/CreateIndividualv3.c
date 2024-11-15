@@ -41,7 +41,7 @@ In this version the individuals are created differently:
 /*******************************/
 /* definitions for readability */
 /*******************************/
-#define POP_SIZE 10
+#define POP_SIZE 1
 
 //defines the maximal and minimal number of children allowed in one class
 #define MIN_CLASS 2
@@ -81,12 +81,14 @@ In this version the individuals are created differently:
 
 #define NUM_CLASSES 3
 
+
 /********************************/
 /* Design Parameters            */
 /********************************/
 
 typedef struct {
     int genome[NUM_STUD][NUM_ATTRIBUTES];
+    int class_sizes[NUM_CLASSES];
     double fit_sex; /*not used but important for later versions*/
     double fit_hyperact; /*not used but important for later versions*/
     double fit_logskill; /*not used but important for later versions*/
@@ -104,42 +106,26 @@ typedef struct {
 
 int createStudents(student stud[NUM_STUD]);/*creates students with predefined values*/
 void createRandPerm(int perm[NUM_STUD]);/*creates a random permutation of the students numbers the student is than assigned to its respective number*/
-void displaySol(individual cand);/*shows the created candidate*/
+void displaySol(individual cand, int class_size[]);/*shows the created candidate*/
 void classDistr(int num_class, individual *cand);/*creates a class distribution for a candidate*/
 void calcFitness(individual *cand); //calculates fitness for a candidate
+void createClasses(student stud[NUM_STUD], int class_size[NUM_CLASSES]);
 
 int main(void) {
     student stud[NUM_STUD];
-    createStudents(stud);
-
-    int candperm[NUM_STUD];
-    
+    createStudents(stud); // Initialize students
 
     individual cand[POP_SIZE];
-    int i, j, x, numcand;
-    for(numcand = 0; numcand < POP_SIZE; numcand++){
-        createRandPerm(candperm);
-        for (i = 0; i < NUM_STUD; i++) {
-            for (j = 0; j < NUM_ATTRIBUTES; j++) {
-                int k = 0;
-                while (candperm[i] != stud[k].attr[STUD_NUM]) {
-                    k++;
-                }
+    for (int numcand = 0; numcand < POP_SIZE; numcand++) {
+        createClasses(stud, cand[numcand].class_sizes);
 
-                if (candperm[i] == stud[k].attr[STUD_NUM]) {
-                    cand[numcand].genome[i][j] = stud[k].attr[j];
-                }
+        for (int i = 0; i < NUM_STUD; i++) {
+            for (int j = 0; j < NUM_ATTRIBUTES; j++) {
+                cand[numcand].genome[i][j] = stud[i].attr[j];
             }
         }
-        classDistr(NUM_CLASSES, &cand[numcand]);
-        displaySol(cand[numcand]);
-        calcFitness(&cand[numcand]);
-
+        displaySol(cand[numcand], cand[numcand].class_sizes);
     }
-
-
-
-    
     return EXIT_SUCCESS;
 }
 
@@ -176,7 +162,7 @@ int createStudents(student stud[NUM_STUD]) {
         double mean = (double)4.0/2.0;
         double std_dev = sqrt(2.0) / 3.0;
 
-        for (t = 2; t < 5; t++){
+        for (t = 2; t < FRIEND1; t++){
         double j, f;
         double pi = 3.14159265;
         j = (double)rand() / RAND_MAX;
@@ -191,41 +177,41 @@ int createStudents(student stud[NUM_STUD]) {
         //implementation of the friends, difficult...
         int num_friend = rand() % 4;//4 as there is a possibility of no friends
         
-        int x = 5 + num_friend;
+        int x = FRIEND1 + num_friend;
         int b;
-        for (l = 5; l < x; l ++){
+        for (l = FRIEND1; l < x; l ++){
             int rand_stud = rand() % NUM_STUD;
             while (rand_stud == k) {
                  int rand_stud = rand() % NUM_STUD;
             }
-            if (stud[k].attr[l] == NUM_STUD && stud[rand_stud].attr[5] == NUM_STUD){
+            if (stud[k].attr[l] == NUM_STUD && stud[rand_stud].attr[FRIEND1] == NUM_STUD){
                 stud[k].attr[l] = rand_stud; 
                 stud[rand_stud].attr[5] = k; 
     
             }
-           if (stud[k].attr[l] == NUM_STUD && stud[rand_stud].attr[5] =! NUM_STUD){
-                for (b = 6; b < 8; b++){
+           if (stud[k].attr[l] == NUM_STUD && stud[rand_stud].attr[FRIEND1] != NUM_STUD){
+                for (b = FRIEND1+1; b < FRIEND3+1; b++){
                     if (stud[k].attr[l] == NUM_STUD && stud[rand_stud].attr[b] == NUM_STUD){
                         stud[k].attr[l] = rand_stud; 
                         stud[rand_stud].attr[b] = k;
                         b == 9;
                     }
                 }
-                if (b =! 9){
+                if (b !=  9){
                     int rand_stud_count;
-                    for (rand_stud_count = rand_stud+1; rand_stud_count=!rand_stud;rand_stud_count++){
+                    for (rand_stud_count = rand_stud+1; rand_stud_count != rand_stud;rand_stud_count++){
                         if (rand_stud_count == NUM_STUD){
                            rand_stud_count = 0; 
                         }
-                        if (stud[rand_stud_count].attr[5] == NUM_STUD){
+                        if (stud[rand_stud_count].attr[FRIEND1] == NUM_STUD){
                             stud[k].attr[l] = rand_stud_count; 
                             stud[rand_stud_count].attr[5] = k;
                             rand_stud_count = rand_stud;
                         }
-                        if (stud[rand_stud_count].attr[5] =! NUM_STUD){
+                        if (stud[rand_stud_count].attr[5] != NUM_STUD){
                             int s;
                             for (s = 6; s < 8; s++){
-                                if stud[k].attr[l] == NUM_STUD && stud[rand_stud_count].attr[s] == NUM_STUD{
+                                if (stud[k].attr[l] == NUM_STUD && stud[rand_stud_count].attr[s] == NUM_STUD){
                                     stud[k].attr[l] = rand_stud_count; 
                                     stud[rand_stud_count].attr[s] = k;
                                     s == 9;
@@ -245,119 +231,162 @@ int createStudents(student stud[NUM_STUD]) {
         }
 
     }
+
         //implementation of classes
-        int i,v,t,g;
-        int class_count[NUM_CLASSES];
+        int i,v,g;
+       
+        int norm_classsize = NUM_STUD/NUM_CLASSES;
+        
+        int left = NUM_STUD % NUM_CLASSES;
+        int class_size[NUM_CLASSES];
         for (i=0; i< NUM_CLASSES; i++){
-            class_count[i] = 0;
+            class_size[i] = norm_classsize;
+
         }
-        while ()
-        for (v=0; v< NUM_STUD; v++){
-            int rand_class = rand() % NUM_CLASSES;
-            stud[v].attr[CLASS_VALUE] = rand_class;
-            class_count[rand_class]= class_count[rand_class]+1;
+        i = 0;
+        v = 0;
+        while (v<left){
+            class_size[i] = class_size[i] + 1;
+            i++;
+            v++;
         }
-        
-            if (class_count[t] < MIN_CLASS && class_count[t] > MAX_CLASS){
-                for (g=0; g< NUM_CLASSES; g++){
-                    class_count[g] = 0;
-                }
-                for (v=0; v< NUM_STUD; v++){
-                    int rand_class = rand() % NUM_CLASSES;
-                    stud[v].attr[CLASS_VALUE] = rand_class;
-                    class_count[rand_class]= class_count[rand_class]+1;
-                }
+        if (norm_classsize-3 < MIN_CLASS && norm_classsize+3 > MAX_CLASS){
+            for (i = 0; i < 20 ; i++){
+                int rand_swap1 = rand() % NUM_CLASSES;
+                int rand_swap2 = rand() % NUM_CLASSES;
+                class_size[rand_swap1]=class_size[rand_swap1]+1;
+                class_size[rand_swap2]=class_size[rand_swap2]-1;
+
             }
-        
-        
+            for (t=0; t<NUM_CLASSES; t++){
+                if (class_size[t] < MIN_CLASS && class_size[t] > MAX_CLASS){
+                    for (i=0; i< NUM_CLASSES; i++){
+                        class_size[i] = norm_classsize;
+
+                    }
+                    i = 0;
+                    v = 0;
+                    while (v<left){
+                        class_size[i] = class_size[i] + 1;
+                        i++;
+                        v++;
+                    }
+                    
+
+                }
+
+            }
+
+        }
+        int class_size_count[NUM_CLASSES];
+        for (t=0; t<NUM_CLASSES; t++){
+            class_size_count[t] = class_size[t];
+        }
+        for (g=0; g< NUM_STUD; g++){
+            int class_num = rand() % NUM_CLASSES;
+            
+            while (class_size_count[class_num] == 0){
+                class_num = rand() % NUM_CLASSES;
+            }
+            if (class_size_count[class_num] > 0){
+                stud[g].attr[CLASS_VALUE] = class_num;
+                class_size_count[class_num]--;
+            }
+            
+        }
+    return class_size;    
     return 0;
 }
 
-void createRandPerm(int *perm) {
-    int i, j;
-    int r;
-    int avail[NUM_STUD] = {0, 1, 2, 3, 4, 5, 6, 7};
+void createClasses(student stud[NUM_STUD], int class_size[NUM_CLASSES]) {
+    int i, v, t, g;
 
-    for (i = NUM_STUD; i > 1; i--) {
-        r = rand() % i;
-        perm[i - 1] = avail[r];
+    // Calculate normalized class sizes
+    int norm_classsize = NUM_STUD / NUM_CLASSES;
+    int left = NUM_STUD % NUM_CLASSES;
 
-        for (j = r; j < i - 1; j++)
-            avail[j] = avail[j + 1];
+    // Initialize class sizes
+    for (i = 0; i < NUM_CLASSES; i++) {
+        class_size[i] = norm_classsize;
     }
-    perm[0] = avail[0];
+
+    // Distribute the remaining students among classes
+    i = 0;
+    v = 0;
+    while (v < left) {
+        class_size[i]++;
+        i++;
+        v++;
+    }
+
+    // Ensure class sizes are within MIN_CLASS and MAX_CLASS constraints
+    if (norm_classsize - 3 < MIN_CLASS && norm_classsize + 3 > MAX_CLASS) {
+        for (i = 0; i < 20; i++) {
+            int rand_swap1 = rand() % NUM_CLASSES;
+            int rand_swap2 = rand() % NUM_CLASSES;
+            class_size[rand_swap1]++;
+            class_size[rand_swap2]--;
+        }
+
+        // Validate constraints and reset if necessary
+        for (t = 0; t < NUM_CLASSES; t++) {
+            if (class_size[t] < MIN_CLASS || class_size[t] > MAX_CLASS) {
+                for (i = 0; i < NUM_CLASSES; i++) {
+                    class_size[i] = norm_classsize;
+                }
+                i = 0;
+                v = 0;
+                while (v < left) {
+                    class_size[i]++;
+                    i++;
+                    v++;
+                }
+            }
+        }
+    }
+
+    // Assign students to classes
+    int class_size_count[NUM_CLASSES];
+    for (t = 0; t < NUM_CLASSES; t++) {
+        class_size_count[t] = class_size[t];
+    }
+
+    for (g = 0; g < NUM_STUD; g++) {
+        int class_num = rand() % NUM_CLASSES;
+
+        while (class_size_count[class_num] == 0) {
+            class_num = rand() % NUM_CLASSES; // Fixed shadowing issue
+        }
+
+        if (class_size_count[class_num] > 0) {
+            stud[g].attr[CLASS_VALUE] = class_num;
+            class_size_count[class_num]--;
+        }
+    }
 }
 
-void displaySol(individual cand) {
-    int i, j,g,studcount ;
+void displaySol(individual cand, int class_size[]) {
+    int i, j,g ;
     for (i = 0; i < NUM_STUD; i++) {
-        printf("Student %d: ", i + 1);
+        printf("Student %d: ", i );
         for (j = 0; j < NUM_ATTRIBUTES; j++) {
             printf("%d ", cand.genome[i][j]);
         }
         printf("\n");
     }
-    studcount  = 0;
-    for (g = 0; g < NUM_CLASSES-1; g++) {
-    printf("Number of children in class %d: %d \n", g , cand.classbreak[g]);
-        studcount = studcount + cand.classbreak[g];
+    for (g = 0; g < NUM_CLASSES; g++) {
+    printf("Number of children in class %d: %d \n", g , class_size[g]);
         
     }
-    int r = NUM_STUD - studcount ;
-    printf("Number of children in class %d: %d \n", g , r);
-    printf("\n");
+    
 }
 
-/*********************************/
 /*
-For the class distribution:
-There are given values for max and min of students in a class in school systems
-To enable some randomness of the class size a uniformly choosen size would be an option
-which is probably not near to a approach of choosing the right size in the school system
-therefore a normal distribution is used, where the triple of the standard deviation is not allowed to exceed the boundary values
-and the mean is NUM_STUD/NUM_CLASSES
-In the first version the boundaries should be 1 and 4 (standard deviation is 0.4467), the mean is 2.66 
-to create a normal distribution out of uniformly random numbers (rand()) a box-muller-transformation is used
-*/
-/*********************************/
-void classDistr(int num_class, individual *cand) {
-    int a;
-    double mean = (double)NUM_STUD / num_class;
-    double std_dev = sqrt((double)NUM_STUD / num_class) / 3.0;
-
-    for (a = 0; a < num_class - 1; a++) {
-        double j, k;
-        double pi = 3.14159265;
-        j = (double)rand() / RAND_MAX;
-        k = (double)rand() / RAND_MAX;
-        double nrmldis = sqrt(-2 * log(j)) * cos(2 * pi * k);
-        double f = mean + std_dev * nrmldis;
-        int sim = round(f);
-
-        // Ensure the class size is within bounds
-        while (sim < MIN_CLASS || sim > MAX_CLASS){
-            j = (double)rand() / RAND_MAX;
-            k = (double)rand() / RAND_MAX;
-            double nrmldis = sqrt(-2 * log(j)) * cos(2 * pi * k);
-            double f = mean + std_dev * nrmldis;
-            int sim = round(f);
-        }
-
-        cand->classbreak[a] = sim;
-    }   
-     // The size of the last class is determined to make the total match NUM_STUD
-    int remaining_students = NUM_STUD;
-    for (a = 0; a < num_class - 1; a++) {
-        remaining_students -= cand->classbreak[a];
-    }
-    cand->classbreak[num_class - 1] = remaining_students;
-}
-
 
 void calcFitness(individual *cand){
 /*A reference value is needed to calculate the fitness, as it is important to calculate the difference
 of the mean of the value sex, hyperact, logskill, langskill of all students and the students of each class*/
-    int u;
+  /*  int u;
     double z = 0;
     for (u = 0; u < NUM_STUD; u++) {
         z = z + cand->genome[u][SEX];
@@ -387,7 +416,7 @@ of the mean of the value sex, hyperact, logskill, langskill of all students and 
     printf("Mean Language Skill: %lf \n", meanlangkill);
 
 /*next step is to calculate the mean values for each class and the overall fitness for the cnand*/
-    int count;
+ /*   int count;
 //Calc for SEX
     int k = 0;
     double m = 0;
@@ -515,7 +544,7 @@ of the mean of the value sex, hyperact, logskill, langskill of all students and 
 /*For the friendships there is an ideal value of 0 which can be accomplished when all students have 3 friend entered
 and all 3 friend of all students are in a class together. The reason for this is to accomplish a multi.objective fitness
 were ideally all fitness values are 0*/
-    int allfriend = NUM_STUD*3;
+ /*   int allfriend = NUM_STUD*3;
     printf("overall Fitness Friends Class: %d \n", allfriend); 
     int fitfriendsclass[NUM_CLASSES];
  // Loop to calculate fitness for each class
@@ -537,3 +566,4 @@ were ideally all fitness values are 0*/
     }
 
 }
+*/
