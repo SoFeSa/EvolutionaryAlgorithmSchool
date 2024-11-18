@@ -319,6 +319,10 @@ void displaySol(individual cand, int class_size[]) {
 void calcFitness(individual *cand){
 /*A reference value is needed to calculate the fitness, as it is important to calculate the difference
 of the mean of the value sex, hyperact, logskill, langskill of all students and the students of each class*/
+
+/*-----------------------------------------------------------------------------------------------------
+Overall mean and standard dist. for SEX
+-------------------------------------------------------------------------------------------------------*/
     int u;
     double z = 0;
     double k = 0;
@@ -326,207 +330,243 @@ of the mean of the value sex, hyperact, logskill, langskill of all students and 
         z = z + cand->genome[u][SEX];
 
     }
-    double meansex = z/NUM_STUD;
+    double meansexOverall = z/NUM_STUD;
     for (u = 0; u < NUM_STUD; u++) {
-        k = k + ((meansex - cand->genome[u][SEX])*(meansex - cand->genome[u][SEX]));
+        k = k + ((meansexOverall - cand->genome[u][SEX])*(meansexOverall - cand->genome[u][SEX]));
 
     }
-    double sdsex = sqrt(k/NUM_STUD);
+    double sdsexOverall = sqrt(k/NUM_STUD);
+    printf("Mean SEX OVERALL: %lf \n", meansexOverall);
+    printf("SD SEX OVERALL: %lf \n", sdsexOverall);
 
 
 
-    printf("Mean SEX: %lf \n", meansex);
+   /*-----------------------------------------------------------------------------------------------------
+    Overall mean and standard dist. for HYPERACTIVITY
+    -------------------------------------------------------------------------------------------------------*/
     z = 0;
     k = 0;
     for (u = 0; u < NUM_STUD; u++) {
         z = z + cand->genome[u][HYPERACT];
     }
-    double meanhyp = z/NUM_STUD;
+    double meanHypOverall = z/NUM_STUD;
     for (u = 0; u < NUM_STUD; u++) {
-        k = k + ((meanhyp - cand->genome[u][HYPERACT])*(meanhyp - cand->genome[u][HYPERACT]));
+        k = k + ((meanHypOverall - cand->genome[u][HYPERACT])*(meanHypOverall - cand->genome[u][HYPERACT]));
 
     }
-    double sdhyp = sqrt(k/NUM_STUD);
+    double sdHypOverall = sqrt(k/NUM_STUD);
     
-    printf("Mean Hyperact: %lf \n", meanhyp);
-
+    //printf("Mean Hyperact: %lf \n", meanhyp);
+   /*-----------------------------------------------------------------------------------------------------
+    Overall mean and standard dist. for LOGICAL SKILLS
+    -------------------------------------------------------------------------------------------------------*/
     z = 0;
     k = 0;
     for (u = 0; u < NUM_STUD; u++) {
         z = z + cand->genome[u][LOGSKILL];
     }
-    double meanlogskill = z/NUM_STUD;
+    double meanlogOverall = z/NUM_STUD;
     for (u = 0; u < NUM_STUD; u++) {
-        k = k + ((meanlogskill - cand->genome[u][LOGSKILL])*(meanlogskill - cand->genome[u][LOGSKILL]));
+        k = k + ((meanlogOverall - cand->genome[u][LOGSKILL])*(meanlogOverall - cand->genome[u][LOGSKILL]));
 
     }
-    double sdlogskill = sqrt(k/NUM_STUD);
-    printf("Mean Logical Skill: %lf \n", meanlogskill);
+    double sdlogOverall = sqrt(k/NUM_STUD);
+    //printf("Mean Logical Skill: %lf \n", meanlogskill);
     
-
+   /*-----------------------------------------------------------------------------------------------------
+    Overall mean and standard dist. for LANGUAGE SKILLS
+    -------------------------------------------------------------------------------------------------------*/
 
     z = 0;
     k = 0;
     for (u = 0; u < NUM_STUD; u++) {
         z = z + cand->genome[u][LANGUAGESKILL];
     }
-    double meanlangkill = z/NUM_STUD;
+    double meanLangOverall = z/NUM_STUD;
     for (u = 0; u < NUM_STUD; u++) {
-        k = k + ((meanlangkill - cand->genome[u][LANGUAGESKILL])*(meanlangkill - cand->genome[u][LANGUAGESKILL]));
+        k = k + ((meanLangOverall - cand->genome[u][LANGUAGESKILL])*(meanLangOverall - cand->genome[u][LANGUAGESKILL]));
 
     }
-    double sdlangkill = sqrt(k/NUM_STUD);
+    double sdLangOverall = sqrt(k/NUM_STUD);
 
-    printf("Mean Language Skill: %lf \n", meanlangkill);
+    //printf("Mean Language Skill: %lf \n", meanlangkill);
+
+/*=============================================================================================================
+VALUE OF FITNESS WSM CALCULATED FOR THE CANDIDATE
+===============================================================================================================*/
 
 /*next step is to calculate the mean values for each class and the overall fitness for the cnand*/
    int count;
 //Calc for SEX
+   /*-----------------------------------------------------------------------------------------------------
+    FITNESS for the CANDIDATE: mean and standard dist. and calc for SEX
+    -------------------------------------------------------------------------------------------------------*/
     double m = 0;
     k = 0;
     int l;
     double sdSexClass[NUM_CLASSES]; 
     double meansexClass[NUM_CLASSES];
     double fitsexClass[NUM_CLASSES];
-    for (l = 0;l<NUM_CLASSES;l++){
+    for (l = 0; l<NUM_CLASSES ; l++){
+        
         for (u = 0; u < NUM_STUD; u++) {
             if (cand->genome[u][CLASS_VALUE]==l){
                 m = m + cand->genome[u][SEX];
+                printf(" %d \n", cand->genome[u][SEX]) ;
             }
-        meansexClass[l] = m / cand->class_sizes[l];  
+            }
+           printf(" %d: %lf \n", cand->class_sizes[l], m) ;
+             meansexClass[l] = m / cand->class_sizes[l];  
         for (u = 0; u < NUM_STUD; u++) {
             if (cand->genome[u][CLASS_VALUE]==l){
                 k = k + ((meansexClass[l] - cand->genome[u][SEX])*(meansexClass[l] - cand->genome[u][SEX]));
             } 
-        sdSexClass[l] = sqrt(k/cand->class_sizes[l]);  
-        }
+        sdSexClass[l] = sqrt(k/cand->class_sizes[l]); 
+         
+       } 
+       
+       m = 0;
+       u = 0;
     }
     double overall_fitSex = 0;
     for (l= 0; l<NUM_CLASSES; l++){
-        fitsexClass[l] = fabs(meansexClass[l]-meansex) + fabs(sdSexClass[l]-sdsex);
+        fitsexClass[l] = fabs(meansexClass[l]-meansexOverall) + fabs(sdSexClass[l]-sdsexOverall);
         printf("Mean Class %d: %lf \n", l, meansexClass[l]);
+        printf("SD Class %d: %lf \n", l, sdSexClass[l]);
         printf("Fitness Class %d: %lf \n", l, fitsexClass[l]);
         overall_fitSex = overall_fitSex + fitsexClass[l];
     }
     printf("Fitness SEX: %lf \n",  overall_fitSex);
-    }
-}
-//Calc for HYPERACT
- /*   m = 0;
-    k = 0;
-    double meanhypClass[NUM_CLASSES];
-    double fithypClass[NUM_CLASSES];
-    double fitHyp = 0; 
-    for (u = 0; u < cand->classbreak[k]; u++) {
-            m = m + cand->genome[u][HYPERACT];
-        }
-    meanhypClass[k] = m/cand->classbreak[k];
-    fithypClass[k] = fabs(meanhypClass[k]-meanhyp);
-    printf("Mean Class %d: %lf \n", k, meanhypClass[k]);
-    printf("Fitness Class %d: %lf \n", k, fithypClass[k]);
-
-    count = cand->classbreak[k];
-    for (k = 1; k < NUM_CLASSES; k++){
-    for (u = count; u < count+cand->classbreak[k]; u++) {
-            m = m + cand->genome[u][HYPERACT];
-        }
-    count = count+cand->classbreak[k];  
-    meanhypClass[k] = m/cand->classbreak[k];
-    fithypClass[k] = fabs(meanhypClass[k]-meanhyp);
-    printf("Mean Class %d: %lf \n", k, meanhypClass[k]);
-    printf("Fitness Class %d: %lf \n", k, fithypClass[k]);  
-    m = 0;
-    }
-    for (u = 0; u < NUM_CLASSES; u++) {
-            fitHyp = fitHyp + fithypClass[u];
-        }
-    printf("overall Fitness Class: %lf \n", fitHyp);
-
-
-//CALC for LOGSKILL 
-    k = 0;
-    double meanlogskillClass[NUM_CLASSES];
-    double fitlogskillClass[NUM_CLASSES];
-    double fitLogskill = 0; 
-    for (u = 0; u < cand->classbreak[k]; u++) {
-            m = m + cand->genome[u][LOGSKILL];
-        }
-    meanlogskillClass[k] = m/cand->classbreak[k];
-    fitlogskillClass[k] = fabs(meanlogskillClass[k]-meanlogskill);
-    printf("Mean Class %d: %lf \n", k, meanlogskillClass[k]);
-    printf("Fitness Class %d: %lf \n", k, fitlogskillClass[k]);
-
-    count = cand->classbreak[k];
-    for (k = 1; k < NUM_CLASSES; k++){
-    for (u = count; u < count+cand->classbreak[k]; u++) {
-            m = m + cand->genome[u][LOGSKILL];
-        }
-    count = count+cand->classbreak[k];  
-    meanlogskillClass[k] = m/cand->classbreak[k];
-    fitlogskillClass[k] = fabs(meanlogskillClass[k]-meanlogskill);
-    printf("Mean Class %d: %lf \n", k, meanlogskillClass[k]);
-    printf("Fitness Class %d: %lf \n", k, fitlogskillClass[k]);  
-    m = 0;
-    }
-    for (u = 0; u < NUM_CLASSES; u++) {
-            fitLogskill = fitLogskill + fitlogskillClass[u];
-        }
-    printf("overall Fitness Class: %lf \n", fitLogskill); 
     
 
-//CALC for LANGUAGESKILL
-   k = 0;
-    double meanlangskillClass[NUM_CLASSES];  
-    double fitlangkillClass[NUM_CLASSES];
-    double fitLangskill = 0; 
-    for (u = 0; u < cand->classbreak[k]; u++) {
-            m = m + cand->genome[u][LOGSKILL];
-        }
-    meanlangskillClass[k] = m/cand->classbreak[k];
-    fitlangkillClass[k] = fabs(meanlangskillClass[k]-meanlangkill);
-    printf("Mean Class %d: %lf \n", k, meanlangskillClass[k]);
-    printf("Fitness Class %d: %lf \n", k, fitlangkillClass[k]);
 
-    count = cand->classbreak[k];
-    for (k = 1; k < NUM_CLASSES; k++){
-    for (u = count; u < count+cand->classbreak[k]; u++) {
-            m = m + cand->genome[u][LOGSKILL];
-        }
-    count = count+cand->classbreak[k];  
-    meanlangskillClass[k] = m/cand->classbreak[k];
-    fitlangkillClass[k] = fabs(meanlangskillClass[k]-meanlangkill);
-    printf("Mean Class %d: %lf \n", k, meanlangskillClass[k]);
-    printf("Fitness Class %d: %lf \n", k, fitlangkillClass[k]);  
+/*-----------------------------------------------------------------------------------------------------
+ FITNESS for the CANDIDATE: mean and standard dist. and calc for HYPERACTIVITY
+ -------------------------------------------------------------------------------------------------------*/
     m = 0;
+    k = 0;
+    double sdHypClass[NUM_CLASSES]; 
+    double meanHypClass[NUM_CLASSES];
+    double fitHypClass[NUM_CLASSES];
+    for (l = 0; l < NUM_CLASSES ; l++){
+        
+        for (u = 0; u < NUM_STUD; u++) {
+            if (cand->genome[u][CLASS_VALUE]==l){
+                m = m + cand->genome[u][HYPERACT];
+                printf(" %d \n", cand->genome[u][HYPERACT]) ;
+            }
+            }
+           printf(" %d: %lf \n", cand->class_sizes[l], m) ;
+             meanHypClass[l] = m / cand->class_sizes[l];  
+        for (u = 0; u < NUM_STUD; u++) {
+            if (cand->genome[u][CLASS_VALUE]==l){
+                k = k + ((meanHypClass[l] - cand->genome[u][HYPERACT])*(meanHypClass[l] - cand->genome[u][HYPERACT]));
+            } 
+        sdHypClass[l] = sqrt(k/cand->class_sizes[l]); 
+         
+       } 
+       
+       m = 0;
+       u = 0;
     }
-    for (u = 0; u < NUM_CLASSES; u++) {
-            fitLangskill = fitLangskill + fitlangkillClass[u];
-        }
-    printf("overall Fitness Class: %lf \n", fitLangskill); 
+    double overall_fitHyp = 0;
+    for (l= 0; l<NUM_CLASSES; l++){
+        fitHypClass[l] = fabs(meanHypClass[l]-meanHypOverall) + fabs(sdHypClass[l]-sdHypOverall);
+        printf("Mean Class %d: %lf \n", l, meanHypClass[l]);
+        printf("SD Class %d: %lf \n", l, sdHypClass[l]);
+        printf("Fitness Class %d: %lf \n", l, fitHypClass[l]);
+        overall_fitHyp = overall_fitHyp + fitHypClass[l];
+    }
+    printf("Fitness HYP: %lf \n",  overall_fitHyp);
+    
+
+
+/*-----------------------------------------------------------------------------------------------------
+ FITNESS for the CANDIDATE: mean and standard dist. and calc for LOGICAL SKILL
+ -------------------------------------------------------------------------------------------------------*/
+    m = 0;
+    k = 0;
+    double sdLogClass[NUM_CLASSES]; 
+    double meanLogClass[NUM_CLASSES];
+    double fitLogClass[NUM_CLASSES];
+    for (l = 0; l < NUM_CLASSES ; l++){
+        
+        for (u = 0; u < NUM_STUD; u++) {
+            if (cand->genome[u][CLASS_VALUE]==l){
+                m = m + cand->genome[u][LOGSKILL];
+                printf(" %d \n", cand->genome[u][LOGSKILL]) ;
+            }
+            }
+           printf(" %d: %lf \n", cand->class_sizes[l], m) ;
+             meanLogClass[l] = m / cand->class_sizes[l];  
+        for (u = 0; u < NUM_STUD; u++) {
+            if (cand->genome[u][CLASS_VALUE]==l){
+                k = k + ((meanLogClass[l] - cand->genome[u][LOGSKILL])*(meanLogClass[l] - cand->genome[u][LOGSKILL]));
+            } 
+        sdLogClass[l] = sqrt(k/cand->class_sizes[l]); 
+         
+       } 
+       
+       m = 0;
+       u = 0;
+    }
+    double overall_fitLog = 0;
+    for (l= 0; l<NUM_CLASSES; l++){
+        fitLogClass[l] = fabs(meanLogClass[l]-meanlogOverall) + fabs(sdLogClass[l]-sdlogOverall);
+        printf("Mean Class %d: %lf \n", l, meanLogClass[l]);
+        printf("SD Class %d: %lf \n", l, sdLogClass[l]);
+        printf("Fitness Class %d: %lf \n", l, fitLogClass[l]);
+        overall_fitLog = overall_fitLog + fitLogClass[l];
+    }
+    printf("Fitness LOG: %lf \n",  overall_fitLog);
+
+
+
+/*-----------------------------------------------------------------------------------------------------
+ FITNESS for the CANDIDATE: mean and standard dist. and calc for LANGUAGE SKILL
+ -------------------------------------------------------------------------------------------------------*/
+    m = 0;
+    k = 0;
+    double sdLangClass[NUM_CLASSES]; 
+    double meanLangClass[NUM_CLASSES];
+    double fitLangClass[NUM_CLASSES];
+    for (l = 0; l < NUM_CLASSES ; l++){
+        
+        for (u = 0; u < NUM_STUD; u++) {
+            if (cand->genome[u][CLASS_VALUE]==l){
+                m = m + cand->genome[u][LANGUAGESKILL];
+                printf(" %d \n", cand->genome[u][LANGUAGESKILL]) ;
+            }
+            }
+           printf(" %d: %lf \n", cand->class_sizes[l], m) ;
+             meanLangClass[l] = m / cand->class_sizes[l];  
+        for (u = 0; u < NUM_STUD; u++) {
+            if (cand->genome[u][CLASS_VALUE]==l){
+                k = k + ((meanLangClass[l] - cand->genome[u][LANGUAGESKILL])*(meanLangClass[l] - cand->genome[u][LANGUAGESKILL]));
+            } 
+        sdLangClass[l] = sqrt(k/cand->class_sizes[l]); 
+         
+       } 
+       
+       m = 0;
+       u = 0;
+    }
+    double overall_fitLang = 0;
+    for (l= 0; l<NUM_CLASSES; l++){
+        fitLangClass[l] = fabs(meanLangClass[l]-meanLangOverall) + fabs(sdLangClass[l]-sdLangOverall);
+        printf("Mean Class %d: %lf \n", l, meanLangClass[l]);
+        printf("SD Class %d: %lf \n", l, sdLangClass[l]);
+        printf("Fitness Class %d: %lf \n", l, fitLangClass[l]);
+        overall_fitLang = overall_fitLang + fitLangClass[l];
+    }
+    printf("Fitness Lang: %lf \n",  overall_fitLang);
+
 
 /*For the friendships there is an ideal value of 0 which can be accomplished when all students have 3 friend entered
 and all 3 friend of all students are in a class together. The reason for this is to accomplish a multi.objective fitness
 were ideally all fitness values are 0*/
-/*    int allfriend = NUM_STUD*3;
-    printf("overall Fitness Friends Class: %d \n", allfriend); 
-    int fitfriendsclass[NUM_CLASSES];
- // Loop to calculate fitness for each class
-    int classcount = 0;
-    int q,i,x,j;
-    for (q = 0; q < NUM_CLASSES; q++) {
-        fitfriendsclass[q] = allfriend;
-        for (i = classcount; i < classcount + cand->classbreak[q]; i++) {
-            for (x = FRIEND1; x <= FRIEND3; x++) {
-                for (j = classcount; j < classcount + cand->classbreak[q]; j++) {
-                    if (cand->genome[i][x] == cand->genome[j][STUD_NUM]) {
-                        fitfriendsclass[q] = fitfriendsclass[q] - 1;
-                    }
-                }
-            }
-        }
-        printf(" Fitness Friends Class %d: %d \n", q, fitfriendsclass[q]);
-        classcount = classcount + cand->classbreak[q];
-    }
+
+
 
 }
-*/
+
