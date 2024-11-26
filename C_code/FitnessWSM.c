@@ -44,8 +44,8 @@ In this version the individuals are created differently:
 #define POP_SIZE 6
 
 //defines the maximal and minimal number of children allowed in one class
-#define MIN_CLASS 2
-#define MAX_CLASS 4
+#define MIN_CLASS 4
+#define MAX_CLASS 9
 
 
 #define NO 0
@@ -74,12 +74,14 @@ In this version the individuals are created differently:
 #define VERY_HIGH 4
 
 //number of students
-#define NUM_STUD 10
+#define NUM_STUD 20
 
 
 #define NUM_ATTRIBUTES 9
 
 #define NUM_CLASSES 3
+
+#define NUM_MUTATION 1
 
 
 /********************************/
@@ -110,6 +112,7 @@ void displaySol(individual cand, int class_size[]);/*shows the created candidate
 void classDistr(int num_class, individual *cand);/*creates a class distribution for a candidate*/
 void calcFitness(individual *cand); //calculates fitness for a candidate
 void createClasses(student stud[NUM_STUD], int class_size[NUM_CLASSES]);
+void createOffspring(individual cand[POP_SIZE]);
 
 int main(void) {
     student stud[NUM_STUD];
@@ -127,21 +130,13 @@ int main(void) {
         displaySol(cand[numcand], cand[numcand].class_sizes);
         calcFitness(&cand[numcand]);
     }
+
     return EXIT_SUCCESS;
 }
 
 /*******************************/
 /*Create students with their predefinded ramdomly chosen values*/
-/*First Test includes 8 students:
-1. Stud_Num (0),Female (0), Hyperact (3), Logskill (2), LanguageSkill(4), Friend1(3), 
-2. Stud_Num (1),Male (1), Hyperact (4), Logskill (3), LanguageSkill(1), Friend1(4)
-3. Stud_Num (2),Male (1), Hyperact (1), Logskill (4), LanguageSkill(3),
-4. Stud_Num (3),Female (0), Hyperact (0), Logskill (3), LanguageSkill(4), Friend1(0)
-5. Stud_Num (4),Male (1), Hyperact (5), Logskill (3), LanguageSkill(0), Friend1(1)
-6. Stud_Num (5),Male (1), Hyperact (2), Logskill (3), LanguageSkill(3), Friend1(6),Friend2(7),Friend3(2)
-7. Stud_Num (6),Female (0), Hyperact (4), Logskill (0), LanguageSkill(2), Friend1(5),Friend2(7)
-8. Stud_Num (7),Male (1), Hyperact (0), Logskill (3), LanguageSkill(1),Friend1(5),Friend2(6)
-*/
+
 /*******************************/
 
 int createStudents(student stud[NUM_STUD]) {
@@ -336,8 +331,6 @@ Overall mean and standard dist. for SEX
 
     }
     double sdsexOverall = sqrt(k/NUM_STUD);
-    printf("Mean SEX OVERALL: %lf \n", meansexOverall);
-    printf("SD SEX OVERALL: %lf \n", sdsexOverall);
 
 
 
@@ -431,12 +424,9 @@ VALUE OF FITNESS WSM CALCULATED FOR THE CANDIDATE
     double overall_fitSex = 0;
     for (l= 0; l<NUM_CLASSES; l++){
         fitsexClass[l] = fabs(meansexClass[l]-meansexOverall) + fabs(sdSexClass[l]-sdsexOverall);
-        printf("Mean Class %d: %lf \n", l, meansexClass[l]);
-        printf("SD Class %d: %lf \n", l, sdSexClass[l]);
-        printf("Fitness Class %d: %lf \n", l, fitsexClass[l]);
+
         overall_fitSex = overall_fitSex + fitsexClass[l];
     }
-    printf("Fitness SEX: %lf \n",  overall_fitSex);
     
 
 
@@ -472,12 +462,10 @@ VALUE OF FITNESS WSM CALCULATED FOR THE CANDIDATE
     double overall_fitHyp = 0;
     for (l= 0; l<NUM_CLASSES; l++){
         fitHypClass[l] = fabs(meanHypClass[l]-meanHypOverall) + fabs(sdHypClass[l]-sdHypOverall);
-        printf("Mean Class %d: %lf \n", l, meanHypClass[l]);
-        printf("SD Class %d: %lf \n", l, sdHypClass[l]);
-        printf("Fitness Class %d: %lf \n", l, fitHypClass[l]);
+
         overall_fitHyp = overall_fitHyp + fitHypClass[l];
     }
-    printf("Fitness HYP: %lf \n",  overall_fitHyp);
+
     
 
 
@@ -513,12 +501,8 @@ VALUE OF FITNESS WSM CALCULATED FOR THE CANDIDATE
     double overall_fitLog = 0;
     for (l= 0; l<NUM_CLASSES; l++){
         fitLogClass[l] = fabs(meanLogClass[l]-meanlogOverall) + fabs(sdLogClass[l]-sdlogOverall);
-        printf("Mean Class %d: %lf \n", l, meanLogClass[l]);
-        printf("SD Class %d: %lf \n", l, sdLogClass[l]);
-        printf("Fitness Class %d: %lf \n", l, fitLogClass[l]);
         overall_fitLog = overall_fitLog + fitLogClass[l];
     }
-    printf("Fitness LOG: %lf \n",  overall_fitLog);
 
 
 
@@ -554,19 +538,189 @@ VALUE OF FITNESS WSM CALCULATED FOR THE CANDIDATE
     double overall_fitLang = 0;
     for (l= 0; l<NUM_CLASSES; l++){
         fitLangClass[l] = fabs(meanLangClass[l]-meanLangOverall) + fabs(sdLangClass[l]-sdLangOverall);
-        printf("Mean Class %d: %lf \n", l, meanLangClass[l]);
-        printf("SD Class %d: %lf \n", l, sdLangClass[l]);
-        printf("Fitness Class %d: %lf \n", l, fitLangClass[l]);
         overall_fitLang = overall_fitLang + fitLangClass[l];
     }
-    printf("Fitness Lang: %lf \n",  overall_fitLang);
 
 
 /*For the friendships there is an ideal value of 0 which can be accomplished when all students have 3 friend entered
 and all 3 friend of all students are in a class together. The reason for this is to accomplish a multi.objective fitness
 were ideally all fitness values are 0*/
 
+    
+    int friendCount = NUM_STUD*3;
+    int a;
+    int classStudNumbers[NUM_CLASSES][NUM_STUD];
+    for (u = 0; u < NUM_STUD; u++){
+        for (a = 0; a < NUM_CLASSES; a++){
+                classStudNumbers[a][u] = NUM_STUD;
+            }
+    }
+    
 
+    for (a = 0; a < NUM_CLASSES; a++){
+        int count = 0;
+        for (u = 0; u < NUM_STUD; u++){
+            if (cand->genome[u][CLASS_VALUE]==a){
+                classStudNumbers[a][count] = cand->genome[u][STUD_NUM];
+                printf("Class count %d: %d \n", a, classStudNumbers[a][count]);
+                count ++;
+            }
+        }
+        
+       
+        
+    }
+    
+    int g, d, f; 
+    for (a = 0; a < NUM_CLASSES; a++){
+        
+        for (g = 0; g < NUM_STUD; g++){
+        if (classStudNumbers[a][g+1] != NUM_STUD){
+           
+
+            
+         for (d = FRIEND1; d <= FRIEND3; d++){ 
+            for (f = g+1; f < NUM_STUD; f++){
+             if (classStudNumbers[a][f] != NUM_STUD){
+                if (cand->genome[classStudNumbers[a][g]][d]== cand->genome[classStudNumbers[a][f]][STUD_NUM]){
+                           classStudNumbers[a][g], classStudNumbers[a][f], a, d);
+                    friendCount = friendCount-2;
+
+                }
+            }
+             }
+            }
+
+         }
+
+         
+        }  
+            
+
+    }
+/*_____________________________________________________________________________________________________
+The next step is to get the right weights for each partial fitness and sum it all up.
+______________________________________________________________________________________________________*/
+
+double weightSex = 4;
+double weightHypLogLang = 1;
+double weightFriends = 2/(NUM_STUD*3);
+double wsm_SEX = weightSex*overall_fitSex;
+double wsm_FITNESS = (weightSex*overall_fitSex+ weightHypLogLang* (overall_fitHyp+overall_fitLang+overall_fitLog)+ weightFriends*friendCount);
+printf("OVERALL FITNESS %lf \n", wsm_FITNESS); 
+cand->overall_fitness = wsm_FITNESS;
 
 }
 
+
+void createOffspring(individual cand[POP_SIZE]){
+
+    int pot_parent1[2];
+    int pot_parent2[2];
+    int parent[2];
+    int z,r,t;
+    for (z = 0; z < 2; z++){
+        pot_parent1[z] = rand()%POP_SIZE;
+    }
+    while (pot_parent1[0]==pot_parent1[1]){
+        pot_parent1[1] = rand()%POP_SIZE;
+    }
+    for (z = 0; z < 2; z++){
+        pot_parent2[z] = rand()%POP_SIZE;
+    }
+    while (pot_parent2[0]==pot_parent1[1]){
+        pot_parent2[1] = rand()%POP_SIZE;
+    }
+
+    if(cand[pot_parent1[0]].overall_fitness < cand[pot_parent1[1]].overall_fitness){
+       int lucky_num = rand()/100;
+       if (lucky_num < 95){
+        parent[0] = pot_parent1[1];
+       }
+       else{
+        parent[0] = pot_parent1[0];
+       }
+    }
+    if (cand[pot_parent1[0]].overall_fitness == cand[pot_parent1[1]].overall_fitness){
+        int lucky_num = rand()/100;
+       if (lucky_num < 50){
+        parent[0] = pot_parent1[0];
+       }
+       else{
+        parent[0] = pot_parent1[1];
+       }
+    }
+    else{
+     int lucky_num = rand()/100;
+       if (lucky_num < 95){
+        parent[0] = pot_parent1[0];
+       }
+       else{
+        parent[0] = pot_parent1[1];
+       }
+    }
+
+
+
+
+    if(cand[pot_parent2[0]].overall_fitness < cand[pot_parent2[1]].overall_fitness){
+       int lucky_num = rand()/100;
+       if (lucky_num < 95){
+        parent[1] = pot_parent2[1];
+       }
+       else{
+        parent[1] = pot_parent2[0];
+       }
+    }
+    if (cand[pot_parent2[0]].overall_fitness == cand[pot_parent2[1]].overall_fitness){
+        int lucky_num = rand()/100;
+       if (lucky_num < 50){
+        parent[1] = pot_parent2[0];
+       }
+       else{
+        parent[1] = pot_parent2[1];
+       }
+    }
+    else{
+     int lucky_num = rand()/100;
+       if (lucky_num < 95){
+        parent[1] = pot_parent2[0];
+       }
+       else{
+        parent[1] = pot_parent2[1];
+       }
+    }
+    
+    //CREATE OFFSPRING
+
+    //CROSSOVER 
+    int crossover = rand()/NUM_STUD;
+    int g;
+    individual offspring[2];
+    for (t = 0; i < crossover; i++){
+            offspring[0].genome[t][CLASS_VALUE]= cand[parent[0]].genome[t][CLASS_VALUE];
+            offspring[1].genome[t][CLASS_VALUE]= cand[parent[1]].genome[t][CLASS_VALUE];
+    }
+        for (t = crossover; i < NUM_STUD; i++){
+        for (g=0;g<NUM_ATTRIBUTES;g++){
+            offspring[1].genome[t][CLASS_VALUE]= cand[parent[1]].genome[t][CLASS_VALUE];
+            offspring[0].genome[t][CLASS_VALUE]= cand[parent[0]].genome[t][CLASS_VALUE];
+        }
+    }
+    //MUTATION
+    int mutation[NUM_MUTATION];
+    
+    for ( i = 0; i < 2; i++){
+        for(g=0; g<NUM_MUTATION; g++){
+            mutation[NUM_MUTATION] = rand()%NUM_STUD;
+            offspring[0].genome[mutation[NUM_MUTATION]][CLASS_VALUE]= rand()%NUM_CLASSES;
+            offspring[1].genome[mutation[NUM_MUTATION]][CLASS_VALUE]= rand()%NUM_CLASSES;
+        }
+
+    }
+    
+    
+    
+
+
+}
