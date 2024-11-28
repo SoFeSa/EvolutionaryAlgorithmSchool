@@ -41,11 +41,11 @@ In this version the individuals are created differently:
 /*******************************/
 /* definitions for readability */
 /*******************************/
-#define POP_SIZE 6
-
+#define POP_SIZE 10
+#define LOOP 100
 //defines the maximal and minimal number of children allowed in one class
-#define MIN_CLASS 4
-#define MAX_CLASS 9
+#define MIN_CLASS 14
+#define MAX_CLASS 31
 
 
 #define NO 0
@@ -74,12 +74,12 @@ In this version the individuals are created differently:
 #define VERY_HIGH 4
 
 //number of students
-#define NUM_STUD 20
+#define NUM_STUD 200
 
 
 #define NUM_ATTRIBUTES 9
 
-#define NUM_CLASSES 3
+#define NUM_CLASSES 9
 
 #define NUM_MUTATION 1
 
@@ -99,6 +99,7 @@ typedef struct {
     double fit_value;
     double density_value;
     double overall_fitness;
+    int cand_num;
 
 } individual;
 
@@ -112,10 +113,11 @@ void displaySol(individual cand, int class_size[]);/*shows the created candidate
 void classDistr(int num_class, individual *cand);/*creates a class distribution for a candidate*/
 void calcFitness(individual *cand); //calculates fitness for a candidate
 void createClasses(student stud[NUM_STUD], int class_size[NUM_CLASSES]);
-void createOffspring(individual cand[POP_SIZE]);
+void createOffspring(individual offspring[2], individual cand[POP_SIZE]);
 
 int main(void) {
     student stud[NUM_STUD];
+    double fitness_pop = 0;
     createStudents(stud); // Initialize students
 
     individual cand[POP_SIZE];
@@ -127,9 +129,75 @@ int main(void) {
                 cand[numcand].genome[i][j] = stud[i].attr[j];
             }
         }
-        displaySol(cand[numcand], cand[numcand].class_sizes);
         calcFitness(&cand[numcand]);
+        cand[numcand].cand_num = numcand;
+        printf("CANDIDATE %d \n \n", numcand );
+        displaySol(cand[numcand], cand[numcand].class_sizes);
+        fitness_pop = fitness_pop + cand[numcand].overall_fitness;
     }
+    fitness_pop = fitness_pop/POP_SIZE;
+
+    printf("Mean Fitness of Population: %lf \n \n", fitness_pop );
+    int k=0;
+    int best = 0;
+    for ( int i = 0; i < POP_SIZE-1; i++){
+        
+        if (cand[k].overall_fitness<cand[i+1].overall_fitness){
+            best = k;
+        }
+        else{
+            best = i+1;
+            k++;
+        }
+        
+    }
+    printf("BEST CAND of Population: %d with Fitness %lf \n \n", best , cand[best].overall_fitness );
+    printf("======================================================================== \n \n \n" );
+
+
+    
+    
+    individual offspring[2];
+    for (int i = 0; i < NUM_STUD; i++) {
+            for (int j = 0; j < NUM_ATTRIBUTES; j++) {
+                offspring[0].genome[i][j] = stud[i].attr[j];
+                offspring[1].genome[i][j] = stud[i].attr[j];
+            }
+        }
+//EVOLUTIONARY LOOP
+for (int i = 1; i < LOOP; i++){
+    createOffspring(offspring ,cand);
+    double fitness_pop = 0;
+    for (int numcand = 0; numcand < POP_SIZE; numcand++){
+        calcFitness(&cand[numcand]);
+        printf("CANDIDATE %d \n \n", numcand );
+        displaySol(cand[numcand], cand[numcand].class_sizes);
+        
+        fitness_pop = fitness_pop + cand[numcand].overall_fitness;
+
+    }
+    fitness_pop = fitness_pop/POP_SIZE;
+
+    printf("Mean Fitness of Population: %lf \n \n", fitness_pop );
+    int k=0;
+    int best = 0;
+    for ( int i = 0; i < POP_SIZE-1; i++){
+        
+        if (cand[k].overall_fitness<cand[i+1].overall_fitness){
+            best = k;
+        }
+        else{
+            best = i+1;
+            k=i+1;
+        }
+        
+    }
+    printf("BEST CAND of Population: %d with Fitness %lf \n \n", best , cand[best].overall_fitness );
+    printf("======================================================================== \n \n \n" );
+
+}
+
+    
 
     return EXIT_SUCCESS;
 }
@@ -228,8 +296,6 @@ int createStudents(student stud[NUM_STUD]) {
 
 void createClasses(student stud[NUM_STUD], int class_size[NUM_CLASSES]) {
     int i, v, t, g;
-
-    // Calculate normalized class sizes
     int norm_classsize = NUM_STUD / NUM_CLASSES;
     int left = NUM_STUD % NUM_CLASSES;
 
@@ -249,11 +315,14 @@ void createClasses(student stud[NUM_STUD], int class_size[NUM_CLASSES]) {
 
     // Ensure class sizes are within MIN_CLASS and MAX_CLASS constraints
     if (norm_classsize - 3 < MIN_CLASS && norm_classsize + 3 > MAX_CLASS) {
+        // Swap students between classes if needed
         for (i = 0; i < 20; i++) {
             int rand_swap1 = rand() % NUM_CLASSES;
             int rand_swap2 = rand() % NUM_CLASSES;
-            class_size[rand_swap1]++;
-            class_size[rand_swap2]--;
+            if (class_size[rand_swap1] > MIN_CLASS && class_size[rand_swap2] < MAX_CLASS) {
+                class_size[rand_swap1]--;
+                class_size[rand_swap2]++;
+            }
         }
 
         // Validate constraints and reset if necessary
@@ -282,15 +351,21 @@ void createClasses(student stud[NUM_STUD], int class_size[NUM_CLASSES]) {
     for (g = 0; g < NUM_STUD; g++) {
         int class_num = rand() % NUM_CLASSES;
 
+        // Ensure valid class assignment
         while (class_size_count[class_num] == 0) {
-            class_num = rand() % NUM_CLASSES; // Fixed shadowing issue
+            class_num = rand() % NUM_CLASSES; // Keep trying until we find a valid class
         }
 
+        // Assign the student to a class and decrement the class size count
         if (class_size_count[class_num] > 0) {
             stud[g].attr[CLASS_VALUE] = class_num;
             class_size_count[class_num]--;
+        } else {
+            printf("Error: Invalid class assignment for student %d\n", g);
         }
     }
+
+
 }
 
 void displaySol(individual cand, int class_size[]) {
@@ -302,10 +377,17 @@ void displaySol(individual cand, int class_size[]) {
         }
         printf("\n");
     }
+    printf("\n");
     for (g = 0; g < NUM_CLASSES; g++) {
     printf("Number of children in class %d: %d \n", g , class_size[g]);
         
     }
+    printf("OVERALL FITNESS %lf \n", cand.overall_fitness);
+
+    printf("-------------------------------------------");
+    printf(" \n");
+    printf(" \n");
+    printf(" \n");
     
 }
 
@@ -314,6 +396,19 @@ void displaySol(individual cand, int class_size[]) {
 void calcFitness(individual *cand){
 /*A reference value is needed to calculate the fitness, as it is important to calculate the difference
 of the mean of the value sex, hyperact, logskill, langskill of all students and the students of each class*/
+int i,p;
+for (p = 0; p < NUM_CLASSES; p++){
+   cand->class_sizes[p] = 0;
+}
+
+for (i = 0; i < NUM_STUD; i++){
+ for (p = 0; p < NUM_CLASSES; p++){
+    if(cand->genome[i][CLASS_VALUE] == p){
+      cand->class_sizes[p] = cand->class_sizes[p]+1;
+    }
+ }
+ 
+}
 
 /*-----------------------------------------------------------------------------------------------------
 Overall mean and standard dist. for SEX
@@ -405,10 +500,10 @@ VALUE OF FITNESS WSM CALCULATED FOR THE CANDIDATE
         for (u = 0; u < NUM_STUD; u++) {
             if (cand->genome[u][CLASS_VALUE]==l){
                 m = m + cand->genome[u][SEX];
-                printf(" %d \n", cand->genome[u][SEX]) ;
+                //printf(" %d \n", cand->genome[u][SEX]) ;
             }
             }
-           printf(" %d: %lf \n", cand->class_sizes[l], m) ;
+
              meansexClass[l] = m / cand->class_sizes[l];  
         for (u = 0; u < NUM_STUD; u++) {
             if (cand->genome[u][CLASS_VALUE]==l){
@@ -443,10 +538,10 @@ VALUE OF FITNESS WSM CALCULATED FOR THE CANDIDATE
         for (u = 0; u < NUM_STUD; u++) {
             if (cand->genome[u][CLASS_VALUE]==l){
                 m = m + cand->genome[u][HYPERACT];
-                printf(" %d \n", cand->genome[u][HYPERACT]) ;
+                //printf(" %d \n", cand->genome[u][HYPERACT]) ;
             }
             }
-           printf(" %d: %lf \n", cand->class_sizes[l], m) ;
+          // printf(" %d: %lf \n", cand->class_sizes[l], m) ;
              meanHypClass[l] = m / cand->class_sizes[l];  
         for (u = 0; u < NUM_STUD; u++) {
             if (cand->genome[u][CLASS_VALUE]==l){
@@ -482,10 +577,10 @@ VALUE OF FITNESS WSM CALCULATED FOR THE CANDIDATE
         for (u = 0; u < NUM_STUD; u++) {
             if (cand->genome[u][CLASS_VALUE]==l){
                 m = m + cand->genome[u][LOGSKILL];
-                printf(" %d \n", cand->genome[u][LOGSKILL]) ;
+                //printf(" %d \n", cand->genome[u][LOGSKILL]) ;
             }
             }
-           printf(" %d: %lf \n", cand->class_sizes[l], m) ;
+           //printf(" %d: %lf \n", cand->class_sizes[l], m) ;
              meanLogClass[l] = m / cand->class_sizes[l];  
         for (u = 0; u < NUM_STUD; u++) {
             if (cand->genome[u][CLASS_VALUE]==l){
@@ -519,10 +614,10 @@ VALUE OF FITNESS WSM CALCULATED FOR THE CANDIDATE
         for (u = 0; u < NUM_STUD; u++) {
             if (cand->genome[u][CLASS_VALUE]==l){
                 m = m + cand->genome[u][LANGUAGESKILL];
-                printf(" %d \n", cand->genome[u][LANGUAGESKILL]) ;
+                //printf(" %d \n", cand->genome[u][LANGUAGESKILL]) ;
             }
             }
-           printf(" %d: %lf \n", cand->class_sizes[l], m) ;
+           //printf(" %d: %lf \n", cand->class_sizes[l], m) ;
              meanLangClass[l] = m / cand->class_sizes[l];  
         for (u = 0; u < NUM_STUD; u++) {
             if (cand->genome[u][CLASS_VALUE]==l){
@@ -562,7 +657,7 @@ were ideally all fitness values are 0*/
         for (u = 0; u < NUM_STUD; u++){
             if (cand->genome[u][CLASS_VALUE]==a){
                 classStudNumbers[a][count] = cand->genome[u][STUD_NUM];
-                printf("Class count %d: %d \n", a, classStudNumbers[a][count]);
+                //printf("Class count %d: %d \n", a, classStudNumbers[a][count]);
                 count ++;
             }
         }
@@ -583,7 +678,7 @@ were ideally all fitness values are 0*/
             for (f = g+1; f < NUM_STUD; f++){
              if (classStudNumbers[a][f] != NUM_STUD){
                 if (cand->genome[classStudNumbers[a][g]][d]== cand->genome[classStudNumbers[a][f]][STUD_NUM]){
-                           classStudNumbers[a][g], classStudNumbers[a][f], a, d);
+
                     friendCount = friendCount-2;
 
                 }
@@ -607,32 +702,58 @@ double weightHypLogLang = 1;
 double weightFriends = 2/(NUM_STUD*3);
 double wsm_SEX = weightSex*overall_fitSex;
 double wsm_FITNESS = (weightSex*overall_fitSex+ weightHypLogLang* (overall_fitHyp+overall_fitLang+overall_fitLog)+ weightFriends*friendCount);
-printf("OVERALL FITNESS %lf \n", wsm_FITNESS); 
+
 cand->overall_fitness = wsm_FITNESS;
+ 
+}
+void tournamentSelection(individual *rival1, individual *rival2){
+    int best;
+    if(rival1->overall_fitness > rival2->overall_fitness){
+       int lucky_num = rand()/100;
+       if (lucky_num < 95){
+        best = rival2->cand_num;
+       }
+       else{
+        best = rival1->cand_num;
+       }
+    }
+    else if (rival1->overall_fitness == rival2->overall_fitness){
+    int lucky_num = rand()/100;
+       if (lucky_num < 50){
+        best = rival1->cand_num;
+       }
+       else{
+        best = rival2->cand_num;
+       }
+    }
+    else{
+     int lucky_num = rand()/100;
+       if (lucky_num < 95){
+        best = rival1->cand_num;
+       }
+       else{
+        best = rival2->cand_num;
+       }
+    }
+    return best;
 
 }
 
+void createOffspring(individual offspring[2], individual cand[POP_SIZE]) {
+    int pot_parent1[2], pot_parent1[2], parent[2];
+    int z, t, g;
 
-void createOffspring(individual cand[POP_SIZE]){
+    // Select two potential parents for each offspring
+    for (z = 0; z < 2; z++) {
+        pot_parent0[z] = rand() % POP_SIZE;
+        pot_parent1[z] = rand() % POP_SIZE;
+    }
+    while (pot_parent0[0] == pot_parent0[1]) pot_parent0[1] = rand() % POP_SIZE;
+    while (pot_parent1[0] == pot_parent1[1]) pot_parent1[1] = rand() % POP_SIZE;
 
-    int pot_parent1[2];
-    int pot_parent2[2];
-    int parent[2];
-    int z,r,t;
-    for (z = 0; z < 2; z++){
-        pot_parent1[z] = rand()%POP_SIZE;
-    }
-    while (pot_parent1[0]==pot_parent1[1]){
-        pot_parent1[1] = rand()%POP_SIZE;
-    }
-    for (z = 0; z < 2; z++){
-        pot_parent2[z] = rand()%POP_SIZE;
-    }
-    while (pot_parent2[0]==pot_parent1[1]){
-        pot_parent2[1] = rand()%POP_SIZE;
-    }
-
-    if(cand[pot_parent1[0]].overall_fitness < cand[pot_parent1[1]].overall_fitness){
+    // Parent selection logic
+    parent[0] 
+    if(cand[pot_parent1[0]].overall_fitness > cand[pot_parent1[1]].overall_fitness){
        int lucky_num = rand()/100;
        if (lucky_num < 95){
         parent[0] = pot_parent1[1];
@@ -663,7 +784,7 @@ void createOffspring(individual cand[POP_SIZE]){
 
 
 
-    if(cand[pot_parent2[0]].overall_fitness < cand[pot_parent2[1]].overall_fitness){
+    if(cand[pot_parent2[0]].overall_fitness > cand[pot_parent2[1]].overall_fitness){
        int lucky_num = rand()/100;
        if (lucky_num < 95){
         parent[1] = pot_parent2[1];
@@ -683,44 +804,86 @@ void createOffspring(individual cand[POP_SIZE]){
     }
     else{
      int lucky_num = rand()/100;
-       if (lucky_num < 95){
+       if (lucky_num <50){
         parent[1] = pot_parent2[0];
        }
        else{
         parent[1] = pot_parent2[1];
        }
     }
-    
-    //CREATE OFFSPRING
 
-    //CROSSOVER 
-    int crossover = rand()/NUM_STUD;
-    int g;
-    individual offspring[2];
-    for (t = 0; i < crossover; i++){
-            offspring[0].genome[t][CLASS_VALUE]= cand[parent[0]].genome[t][CLASS_VALUE];
-            offspring[1].genome[t][CLASS_VALUE]= cand[parent[1]].genome[t][CLASS_VALUE];
+   // Crossover
+    int crossover = rand() % NUM_STUD;
+    for (t = 0; t < crossover; t++) {
+        offspring[0].genome[t][CLASS_VALUE] = cand[parent[0]].genome[t][CLASS_VALUE];
+        offspring[1].genome[t][CLASS_VALUE] = cand[parent[1]].genome[t][CLASS_VALUE];
     }
-        for (t = crossover; i < NUM_STUD; i++){
-        for (g=0;g<NUM_ATTRIBUTES;g++){
-            offspring[1].genome[t][CLASS_VALUE]= cand[parent[1]].genome[t][CLASS_VALUE];
-            offspring[0].genome[t][CLASS_VALUE]= cand[parent[0]].genome[t][CLASS_VALUE];
-        }
+    for (t = crossover; t < NUM_STUD; t++) {
+        offspring[0].genome[t][CLASS_VALUE] = cand[parent[1]].genome[t][CLASS_VALUE];
+        offspring[1].genome[t][CLASS_VALUE] = cand[parent[0]].genome[t][CLASS_VALUE];
     }
-    //MUTATION
+
+    // Mutation
     int mutation[NUM_MUTATION];
+    for (g = 0; g < NUM_MUTATION; g++) {
+        mutation[g] = rand() % NUM_STUD;
+        offspring[0].genome[mutation[g]][CLASS_VALUE] = rand() % NUM_CLASSES;
+        offspring[1].genome[mutation[g]][CLASS_VALUE] = rand() % NUM_CLASSES;
+    }
+
+    // Calculate fitness for offspring
+
+    calcFitness(&offspring[0]);
+
+    calcFitness(&offspring[1]);
+   
     
-    for ( i = 0; i < 2; i++){
-        for(g=0; g<NUM_MUTATION; g++){
-            mutation[NUM_MUTATION] = rand()%NUM_STUD;
-            offspring[0].genome[mutation[NUM_MUTATION]][CLASS_VALUE]= rand()%NUM_CLASSES;
-            offspring[1].genome[mutation[NUM_MUTATION]][CLASS_VALUE]= rand()%NUM_CLASSES;
+    int i;
+    int class_valid0 = 1;
+    int class_valid1 = 1;
+    for (i = 0; i < NUM_CLASSES; i++){
+        if (offspring[0].class_sizes[i]<MIN_CLASS || offspring[0].class_sizes[i]>MAX_CLASS){
+            class_valid0 = 0;
         }
+    }
+      for (i = 0; i < NUM_CLASSES; i++){
+        if (offspring[1].class_sizes[i]<MIN_CLASS || offspring[1].class_sizes[i]>MAX_CLASS){
+            class_valid1 = 0;
+        }
+    }
+
+
+    // Replace candidates if offspring are fitter
+ if(class_valid0 == 1 && class_valid1 == 1){  
+  if(cand[parent[0]].overall_fitness > offspring[0].overall_fitness){
+       int lucky_num = rand()/100;
+       if (lucky_num < 95){
+        cand[parent[0]] = offspring[0];
+       }
+
+    }
+    else{
+     int lucky_num = rand()/100;
+       if (lucky_num < 50){
+        cand[parent[0]] = offspring[0];
+       }
 
     }
     
-    
-    
 
 
+    if(cand[parent[1]].overall_fitness > offspring[1].overall_fitness){
+       int lucky_num = rand()/100;
+       if (lucky_num < 95){
+        cand[parent[1]] = offspring[1];
+       }
+
+    }
+    else{
+     int lucky_num = rand()/100;
+       if (lucky_num < 50){
+        cand[parent[1]] = offspring[1];
+       }
+    }
+}
 }
