@@ -41,11 +41,11 @@ In this version the individuals are created differently:
 /*******************************/
 /* definitions for readability */
 /*******************************/
-#define POP_SIZE 20
-#define LOOP 10
+#define POP_SIZE 50
+#define LOOP 1000
 //defines the maximal and minimal number of children allowed in one class
-#define MIN_CLASS 5
-#define MAX_CLASS 15
+#define MIN_CLASS 14
+#define MAX_CLASS 31
 
 
 #define NO 0
@@ -74,12 +74,12 @@ In this version the individuals are created differently:
 #define VERY_HIGH 4
 
 //number of students
-#define NUM_STUD 30
+#define NUM_STUD 154
 
 
 #define NUM_ATTRIBUTES 9
 
-#define NUM_CLASSES 3
+#define NUM_CLASSES 8
 
 #define NUM_MUTATION 1
 #define TOURNM_PROP 0.05
@@ -118,7 +118,7 @@ int tournamentSelection(individual *rival1, individual *rival2);
 
 int main(void) {
     student stud[NUM_STUD];
-    double fitness_pop = 0;
+    double fitness_pop = 0.0;
     createStudents(stud); // Initialize students
 
     individual cand[POP_SIZE];
@@ -138,7 +138,7 @@ int main(void) {
     }
     fitness_pop = fitness_pop/POP_SIZE;
 
-    printf("Mean Fitness of Population: %lf \n \n", fitness_pop );
+    printf("Mean Fitness of Population: %lf       ", fitness_pop );
     int k=0;
     int best = 0;
     for ( int i = 0; i < POP_SIZE-1; i++){
@@ -152,7 +152,7 @@ int main(void) {
         }
         
     }
-    printf("BEST CAND of Population: %d with Fitness %lf \n \n", best , cand[best].overall_fitness );
+    printf("BEST CAND of Population: %d with Fitness %lf \n ", best , cand[best].overall_fitness );
     printf("======================================================================== \n \n \n" );
 
 
@@ -177,18 +177,18 @@ for (int i = 1; i < LOOP; i++){
     
     
     createOffspring(offspring ,cand);}
-    double fitness_pop = 0;
+    double fitness_pop = 0.0;
     for (int numcand = 0; numcand < POP_SIZE; numcand++){
         calcFitness(&cand[numcand]);
         //printf("CANDIDATE %d \n \n", numcand );
-        displaySol(cand[numcand], cand[numcand].class_sizes);
+        //displaySol(cand[numcand], cand[numcand].class_sizes);
         
         fitness_pop = fitness_pop + cand[numcand].overall_fitness;
 
     }
     fitness_pop = fitness_pop/POP_SIZE;
-    printf("LOOP: %d \n ", i );
-    printf("Mean Fitness of Population: %lf \n ", fitness_pop );
+    printf("LOOP: %d     ", i );
+    printf("Mean Fitness of Population: %lf        ", fitness_pop );
     int k=0;
     int best = 0;
     for ( int i = 0; i < POP_SIZE-1; i++){
@@ -206,9 +206,10 @@ for (int i = 1; i < LOOP; i++){
     printf("======================================================================== \n " );
 
 }
-
-    
-
+for (int numcand = 0; numcand < POP_SIZE; numcand++){
+    displaySol(cand[numcand], cand[numcand].class_sizes);
+        
+}
     return EXIT_SUCCESS;
 }
 
@@ -241,7 +242,7 @@ int createStudents(student stud[NUM_STUD]) {
         double pi = 3.14159265;
         j = (double)rand() / RAND_MAX;
         f = (double)rand() / RAND_MAX;
-        double nrmldis = sqrt(-2 * log(j)) * cos(2 * pi * f);
+        double nrmldis = sqrt(-2.0 * log(j)) * cos(2.0 * pi * f);
         double g = mean + std_dev * nrmldis;
         int sim = round(g);
         stud[k].attr[t] = sim;
@@ -380,19 +381,19 @@ void createClasses(student stud[NUM_STUD], int class_size[NUM_CLASSES]) {
 
 void displaySol(individual cand, int class_size[]) {
     int i, j,g ;
- /*  for (i = 0; i < NUM_STUD; i++) {
-        printf("Student %d: ", i );
-        for (j = 0; j < NUM_ATTRIBUTES; j++) {
+   for (i = 0; i < NUM_STUD; i++) {
+        //printf("Student %d: ", i );
+        for (j = 8; j < NUM_ATTRIBUTES; j++) {
             printf("%d ", cand.genome[i][j]);
         }
         printf("\n");
     }
-  */
- // printf("\n");
-  //  for (g = 0; g < NUM_CLASSES; g++) {
-   // printf("Number of children in class %d: %d \n", g , class_size[g]);
+  
+ printf("\n");
+    for (g = 0; g < NUM_CLASSES; g++) {
+    printf("Number of children in class %d: %d \n", g , class_size[g]);
         
-   // }
+    }
 
     printf("OVERALL FITNESS %lf \n", cand.overall_fitness);
 
@@ -405,8 +406,8 @@ void displaySol(individual cand, int class_size[]) {
 }
 
 void calculateMeanAndStdDev(int attribute, individual *cand, double *meanOverall, double *sdOverall, double *meanClass, double *sdClass) {
-    double sum = 0;
-    double varianceSum = 0;
+    double sum = 0.0;
+    double varianceSum = 0.0;
 
     // Calculate overall mean
     for (int i = 0; i < NUM_STUD; i++) {
@@ -471,9 +472,9 @@ void calcFitness(individual *cand){
     }
 
     // Partial fitness
-    double partFitness[4] = {0};
+    double partFitness[4] = {0.0};
     for (int i = 0; i < 4; i++) {
-        double fitness = 0;
+        double fitness = 0.0;
         for (int p = 0; p < NUM_CLASSES; p++) {
             fitness += fabs(meanClass[i][p] - meanOverall[i]) + fabs(sdClass[i][p] - sdOverall[i]);
         }
@@ -487,7 +488,7 @@ void calcFitness(individual *cand){
 one class has 14 and the other 30 children in the class, therefore it should be considered in the fitness how much each build class
 size is deviated from the mean class size*/
 double mean_classsize = NUM_STUD/NUM_CLASSES;
-double dev_classsize = 0;
+double dev_classsize = 0.0;
 for (int t =0; t< NUM_CLASSES; t++){
     dev_classsize = dev_classsize + sqrt((mean_classsize- cand->class_sizes[t])*(mean_classsize- cand->class_sizes[t])/NUM_CLASSES);
 }
@@ -554,10 +555,11 @@ were ideally all fitness values are 0*/
 The next step is to get the right weights for each partial fitness and sum it all up.
 ______________________________________________________________________________________________________*/
 
-double weightSex = 4;
-double weightHypLogLang = 1;
-double weightFriends = 2/(NUM_STUD*3);
-double weightClass = 4/17;
+double weightSex = 4.0;
+double weightHypLogLang = 1.0;
+double weightFriends = 2.0/(NUM_STUD*3);
+double weightClass = 4.0/17.0;//4/17
+double weight = weightClass*dev_classsize;
 double wsm_FITNESS = (weightSex*partFitness[0]+ weightHypLogLang* (partFitness[1]+partFitness[2]+partFitness[3])+ weightFriends*friendCount+weightClass*dev_classsize);
 
 cand->overall_fitness = wsm_FITNESS;
