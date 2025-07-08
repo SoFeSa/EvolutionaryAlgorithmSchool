@@ -37,21 +37,22 @@ In this version the individuals are created differently:
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
-
+#include <time.h>
 /*******************************/
 /* definitions for readability */
 /*******************************/
-#define POP_SIZE 10
+#define POP_SIZE 20
 #define LOOP 10
+
 //defines the maximal and minimal number of children allowed in one class
-#define MIN_CLASS 4
-#define MAX_CLASS 10
+#define MIN_CLASS 8
+#define MAX_CLASS 15
 
 
 #define NO 0
 #define YES 1
 
-
+#define RANDOM 1
 
 #define STUD_NUM 0
 
@@ -74,7 +75,7 @@ In this version the individuals are created differently:
 #define VERY_HIGH 4
 
 //number of students
-#define NUM_STUD 25
+#define NUM_STUD 32
 
 
 #define NUM_ATTRIBUTES 9
@@ -103,6 +104,7 @@ typedef struct {
     double density_value;
     double fitness_si;
     double fitness_raw;
+    double overall_fitness;
     double array_distance[POP_SIZE+POP_SIZE];
     double array_distance_all[POP_SIZE*3];
     int cand_num;
@@ -118,17 +120,35 @@ int createStudents(student stud[NUM_STUD]);/*creates students with predefined va
 void createRandPerm(int perm[NUM_STUD]);/*creates a random permutation of the students numbers the student is than assigned to its respective number*/
 void displaySol(individual cand, int class_size[]);/*shows the created candidate*/
 void classDistr(int num_class, individual *cand);/*creates a class distribution for a candidate*/
-void calcFitness(individual *cand, individual candall[POP_SIZE]); //calculates fitness for a candidate
+void calcFitness(individual *cand); //calculates fitness for a candidate
 void createClasses(student stud[NUM_STUD], int class_size[NUM_CLASSES]);
 void createOffspring(individual offspring[2], individual cand[POP_SIZE]);
+void calcSPEAFitness(int archive_boolean, individual *cand, individual archcand[POP_SIZE+POP_SIZE],individual candall[POP_SIZE]);
+void createEmptyArchive (individual archcand[POP_SIZE+POP_SIZE]);
 int tournamentSelection(individual *rival1, individual *rival2);
+double euclideanDistance(individual *cand1, individual *cand2);
+double findMaximum(const double arr[], int size);
+void sort_array(double* array, int size);
+int dominates(individual *a, individual *b);
+int compareArrays(double a[], double b[], int size);
+void replaceArchive(individual cand[POP_SIZE], individual archcand[POP_SIZE]);
+void calcSIFitness(individual archcand[POP_SIZE+POP_SIZE],individual candall[POP_SIZE]);
+
 
 int main(void) {
+    srand(3);
     student stud[NUM_STUD];
     double fitness_pop = 0.0;
     createStudents(stud); // Initialize students
 
     individual cand[POP_SIZE];
+    individual archcand[POP_SIZE+POP_SIZE];
+    if (NUM_STUD < NUM_CLASSES * MIN_CLASS || NUM_STUD > NUM_CLASSES * MAX_CLASS) {
+        printf("Error: Cannot assign %d students into %d classes within bounds [%d, %d].\n",
+               NUM_STUD, NUM_CLASSES, MIN_CLASS, MAX_CLASS);
+        return 1;
+    }
+    createEmptyArchive(archcand);
     for (int numcand = 0; numcand < POP_SIZE; numcand++) {
         createClasses(stud, cand[numcand].class_sizes);
 
@@ -140,83 +160,75 @@ int main(void) {
         calcFitness(&cand[numcand]);
         cand[numcand].cand_num = numcand;
         //printf("CANDIDATE %d \n \n", numcand );
-        //displaySol(cand[numcand], cand[numcand].class_sizes);
-        fitness_pop = fitness_pop + cand[numcand].overall_fitness;
-    }
-    fitness_pop = fitness_pop/POP_SIZE;
-
-    printf("Mean Fitness of Population: %lf       ", fitness_pop );
-    int k=0;
-    int best = 0;
-    for ( int i = 0; i < POP_SIZE-1; i++){
         
-        if (cand[k].overall_fitness<cand[i+1].overall_fitness){
-            best = k;
-        }
-        else{
-            best = i+1;
-            k++;
-        }
+        
+        displaySol(cand[numcand], cand[numcand].class_sizes);
         
     }
-    printf("BEST CAND of Population: %d with Fitness %lf \n ", best , cand[best].overall_fitness );
-    printf("======================================================================== \n \n \n" );
-
-
-    
-    
-    individual offspring[2];
-    for (int i = 0; i < NUM_STUD; i++) {
-            for (int j = 0; j < NUM_ATTRIBUTES; j++) {
-                offspring[0].genome[i][j] = stud[i].attr[j];
-                
-                offspring[1].genome[i][j] = stud[i].attr[j];
-                
-            }
-        }
-        offspring[0].cand_num = NUM_STUD;
-        offspring[1].cand_num = NUM_STUD+1;
+    calcSIFitness(archcand,cand);
+    for (int numcand = 0; numcand < POP_SIZE; numcand++) {
+        calcSPEAFitness(0,&cand[numcand],archcand,cand);
+        printf("OVERALL SPEA FITNESS CAND %d : %f\n", numcand, cand[numcand].overall_fitness);
         
-//EVOLUTIONARY LOOP
-for (int i = 1; i < LOOP; i++){
-    for (int p = 0; p < POP_SIZE; p++){
-       
+    }      
+    replaceArchive(cand,archcand);    
     
-    
-    createOffspring(offspring ,cand);}
-    double fitness_pop = 0.0;
-    for (int numcand = 0; numcand < POP_SIZE; numcand++){
-        calcFitness(&cand[numcand]);
-        //printf("CANDIDATE %d \n \n", numcand );
-        //displaySol(cand[numcand], cand[numcand].class_sizes);
-        
-        fitness_pop = fitness_pop + cand[numcand].overall_fitness;
-
+for (int numcand = 0; numcand < POP_SIZE+POP_SIZE; numcand++){
+    if (archcand[numcand].valid == 1){
+        printf("OVERALL SPEA FITNESS ARCHCAND %d : %f\n", numcand, archcand[numcand].overall_fitness);
     }
-    fitness_pop = fitness_pop/POP_SIZE;
-    printf("LOOP: %d     ", i );
-    printf("Mean Fitness of Population: %lf        ", fitness_pop );
-    int k=0;
-    int best = 0;
-    for ( int i = 0; i < POP_SIZE-1; i++){
-        
-        if (cand[k].overall_fitness<cand[i+1].overall_fitness){
-            best = k;
-        }
-        else{
-            best = i+1;
-            k=i+1;
-        }
-        
-    }
-    printf("BEST CAND of Population: %d with Fitness %lf \n ", best , cand[best].overall_fitness );
-    printf("======================================================================== \n " );
-
-}
-//for (int numcand = 0; numcand < POP_SIZE; numcand++){
+    
+    
   //  displaySol(cand[numcand], cand[numcand].class_sizes);
         
-//}
+}
+for ( int il = 1; il  < LOOP; il++){
+    printf("ROUND %d : \n", il);
+        createStudents(stud); // Initialize students
+        if (NUM_STUD < NUM_CLASSES * MIN_CLASS || NUM_STUD > NUM_CLASSES * MAX_CLASS) {
+            printf("Error: Cannot assign %d students into %d classes within bounds [%d, %d].\n",
+                NUM_STUD, NUM_CLASSES, MIN_CLASS, MAX_CLASS);
+            return 1;
+        }
+    
+        for (int numcand = 0; numcand < POP_SIZE; numcand++) {
+             
+            
+            createClasses(stud, cand[numcand].class_sizes);
+
+            for (int i = 0; i < NUM_STUD; i++) {
+                for (int j = 0; j < NUM_ATTRIBUTES; j++) {
+                    cand[numcand].genome[i][j] = stud[i].attr[j];
+                }
+            }
+            calcFitness(&cand[numcand]);
+            cand[numcand].cand_num = numcand;
+            //printf("CANDIDATE %d \n \n", numcand );
+            
+            
+            displaySol(cand[numcand], cand[numcand].class_sizes);
+            
+        }
+        calcSIFitness(archcand,cand);
+        for (int numcand = 0; numcand < POP_SIZE; numcand++) {
+            calcSPEAFitness(0,&cand[numcand],archcand,cand);
+            printf("OVERALL SPEA FITNESS CAND %d : %f\n", numcand, cand[numcand].overall_fitness);
+            
+        }      
+        replaceArchive(cand,archcand);    
+        
+    for (int numcand = 0; numcand < POP_SIZE+POP_SIZE; numcand++){
+        if (archcand[numcand].valid == 1){
+            printf("OVERALL SPEA FITNESS ARCHCAND %d : %f\n", numcand, archcand[numcand].overall_fitness);
+        }
+        
+        
+    //  displaySol(cand[numcand], cand[numcand].class_sizes);
+            
+    }
+    
+}
+
     return EXIT_SUCCESS;
 }
 
@@ -226,7 +238,6 @@ for (int i = 1; i < LOOP; i++){
 /*******************************/
 
 int createStudents(student stud[NUM_STUD]) {
-    srand(2);
     int z,p;
     for (z = 0; z < NUM_STUD; z++) {
         for (p = 5; p < 8;p ++){
@@ -313,78 +324,68 @@ int createStudents(student stud[NUM_STUD]) {
 }
 
 void createClasses(student stud[NUM_STUD], int class_size[NUM_CLASSES]) {
-    int i, v, t, g;
-    int norm_classsize = NUM_STUD / NUM_CLASSES;
-    int left = NUM_STUD % NUM_CLASSES;
+    int i, c;
 
-    // Initialize class sizes
-    for (i = 0; i < NUM_CLASSES; i++) {
-        class_size[i] = norm_classsize;
+    // Reset class sizes
+    for (c = 0; c < NUM_CLASSES; c++) {
+        class_size[c] = 0;
     }
 
-    // Distribute the remaining students among classes
-    i = 0;
-    v = 0;
-    while (v < left) {
-        class_size[i]++;
-        i++;
-        v++;
+    // Initial random assignment
+    for (i = 0; i < NUM_STUD; i++) {
+        int assigned_class = rand() % NUM_CLASSES;
+        stud[i].attr[CLASS_VALUE] = assigned_class;
+        class_size[assigned_class]++;
     }
 
-    // Ensure class sizes are within MIN_CLASS and MAX_CLASS constraints
-    if (norm_classsize - 3 < MIN_CLASS && norm_classsize + 3 > MAX_CLASS) {
-        // Swap students between classes if needed
-        for (i = 0; i < 20; i++) {
-            int rand_swap1 = rand() % NUM_CLASSES;
-            int rand_swap2 = rand() % NUM_CLASSES;
-            if (class_size[rand_swap1] > MIN_CLASS && class_size[rand_swap2] < MAX_CLASS) {
-                class_size[rand_swap1]--;
-                class_size[rand_swap2]++;
+    int all_inBound = 0;
+    int max_iterations = 10000;
+    int iteration = 0;
+
+    while (!all_inBound && iteration < max_iterations) {
+        iteration++;
+
+        // Check if all classes are within bounds
+        all_inBound = 1;
+        int min_class = 0, max_class = 0;
+
+        for (c = 0; c < NUM_CLASSES; c++) {
+            if (class_size[c] < MIN_CLASS || class_size[c] > MAX_CLASS) {
+                all_inBound = 0;
             }
+            if (class_size[c] < class_size[min_class]) min_class = c;
+            if (class_size[c] > class_size[max_class]) max_class = c;
         }
 
-        // Validate constraints and reset if necessary
-        for (t = 0; t < NUM_CLASSES; t++) {
-            if (class_size[t] < MIN_CLASS || class_size[t] > MAX_CLASS) {
-                for (i = 0; i < NUM_CLASSES; i++) {
-                    class_size[i] = norm_classsize;
-                }
-                i = 0;
-                v = 0;
-                while (v < left) {
-                    class_size[i]++;
-                    i++;
-                    v++;
+        if (all_inBound) break; // All balanced!
+
+        // Instead of breaking if max_class is not over MAX_CLASS,
+        // we must allow moving students even if max_class is not overfilled,
+        // because some classes may be underfilled.
+
+        // But moving student from max_class to min_class only makes sense if max_class > min_class
+        if (class_size[max_class] > class_size[min_class]) {
+            // Find a student in max_class to move
+            for (i = 0; i < NUM_STUD; i++) {
+                if (stud[i].attr[CLASS_VALUE] == max_class) {
+                    stud[i].attr[CLASS_VALUE] = min_class;
+                    class_size[max_class]--;
+                    class_size[min_class]++;
+                    break; // Only move one student per iteration
                 }
             }
-        }
-    }
-
-    // Assign students to classes
-    int class_size_count[NUM_CLASSES];
-    for (t = 0; t < NUM_CLASSES; t++) {
-        class_size_count[t] = class_size[t];
-    }
-
-    for (g = 0; g < NUM_STUD; g++) {
-        int class_num = rand() % NUM_CLASSES;
-
-        // Ensure valid class assignment
-        while (class_size_count[class_num] == 0) {
-            class_num = rand() % NUM_CLASSES; // Keep trying until we find a valid class
-        }
-
-        // Assign the student to a class and decrement the class size count
-        if (class_size_count[class_num] > 0) {
-            stud[g].attr[CLASS_VALUE] = class_num;
-            class_size_count[class_num]--;
         } else {
-            printf("Error: Invalid class assignment for student %d\n", g);
+            // Can't fix by moving students (all classes are equal size), break to avoid infinite loop
+            break;
         }
     }
 
-
+    if (iteration == max_iterations) {
+        printf("Warning: Could not balance classes within bounds after %d iterations.\n", max_iterations);
+    }
 }
+    
+
 
 void displaySol(individual cand, int class_size[]) {
     int i, j,g ;
@@ -396,16 +397,15 @@ void displaySol(individual cand, int class_size[]) {
         printf("\n");
     }
   */
- printf("\n");
+ 
     for (g = 0; g < NUM_CLASSES; g++) {
-    printf("Number of children in class %d: %d \n", g , class_size[g]);
+    //printf("Number of children in class %d: %d \n", g , class_size[g]);
         
     }
 
-    printf("OVERALL FITNESS %lf \n", cand.overall_fitness);
 
-    printf("-------------------------------------------");
-    printf(" \n");
+   // printf("-------------------------------------------");
+   // printf(" \n");
    
  // printf(" \n");
    // printf(" \n");
@@ -561,51 +561,57 @@ were ideally all fitness values are 0*/
     }
     cand->fitness_values[5] = friendCount;
 }
-
-void calcSPEAFitness(individual *cand, individual archcand[POP_SIZE+POP_SIZE]; candall[POP_SIZE]){
-/*_____________________________________________________________________________________________________
-FIRST ASSESS DOMINANCE VALUE Si
-______________________________________________________________________________________________________*/
-int same = 0;
-int dom_count = 0;
-cand->fitness_si = 0;
-cand->fitness_raw = 0;
-int sumdomsame = 0;
-    for (int j = 0; j < POP_SIZE; j++){
-        if (j == cand->cand_num){
-            continue;
+void calcSIFitness(individual archcand[POP_SIZE+POP_SIZE],individual candall[POP_SIZE]){
+    for (int i = 0; i < POP_SIZE; i++) {
+        candall[i].fitness_si = 0;
+        for (int j = 0; j < POP_SIZE; j++) {
+            if (j != i){
+                candall[i].fitness_si += dominates(&candall[i], &candall[j]);
+            }
         }
-        cand->fitness_si = cand->fitness_si+dominates(cand, &candall[j]); 
+        for (int j = 0; j < POP_SIZE + POP_SIZE; j++) {
+            if (archcand[j].valid == 1){
+                candall[i].fitness_si += dominates(&candall[i], &archcand[j]);
+            }
         }
-
-    for (int j = 0; j < POP_SIZE+POP_SIZE; j++){
-        if (archcand[j].valid == 1){
-            cand->fitness_si = cand->fitness_si+dominates(cand, &archcand[j]);  
-      }  
     }
+}
 
-    
+void calcSPEAFitness(int archive_boolean, individual *cand, individual archcand[POP_SIZE+POP_SIZE],individual candall[POP_SIZE]){//boolean: if candidate part of archive = 1
+
+
+
+
 /*_____________________________________________________________________________________________________
 Ri raw fitness is the sum of Si of individual j that dominate i
 ______________________________________________________________________________________________________*/
-
+    cand->fitness_raw = 0;
+    cand->overall_fitness = 0;
 
     for (int j = 0; j < POP_SIZE; j++){
 
-        if (j == cand->cand_num){
+        if (j == cand->cand_num && archive_boolean == 1){
             continue;
         }
         
-        if (dominates(cand, &candall[j]) == 1){
+        if (dominates(&candall[j], cand) == 1){
+             printf("CAND %d is dominating \n", j);
+            
             cand->fitness_raw = cand->fitness_raw+candall[j].fitness_si;
+           
         }
     
     }
         
 
     for (int j = 0; j < POP_SIZE+POP_SIZE; j++){
+        if (j == cand->cand_num && archive_boolean == 0){
+            continue;
+        }
         if (archcand[j].valid == 1){
-            if (dominates(cand, &arch[j]) == 1){
+ 
+            if (dominates(&archcand[j], cand) == 1){
+                printf("ARCHCAND %d is dominating \n", j);
                 cand->fitness_raw = cand->fitness_raw+archcand[j].fitness_si;
             }
             
@@ -619,10 +625,9 @@ ________________________________________________________________________________
 /*_________________________________________________________________________________________________
 CREATE FITNESS DISTANCE
 ___________________________________________________________________________________________________*/
-    double kdoub = round(sqrt(POP_SIZE+POP_SIZE));
+   double kdoub = round(sqrt(POP_SIZE+POP_SIZE));
 
     int k = (int)kdoub + 1;
-    double count[6];
 
     for (int j = 0; j < POP_SIZE+POP_SIZE; j++){
         cand->array_distance[j]=-1;
@@ -642,24 +647,30 @@ ________________________________________________________________________________
         
     
 
-for (int j = POP_SIZE; j < POP_SIZE+POP_SIZE; j++){
+    int j_plus = POP_SIZE;
     for (int m = 0; m < POP_SIZE+POP_SIZE; m++){
         
         if (archcand[m].valid == 1){
-            for (int u = 0; u < 6; u++){
-                cand->array_distance[j] = 0;
-                cand->array_distance[j] = euclideanDistance(cand, &archcand[m]);
-            }
+                cand->array_distance[j_plus] = 0;
+                cand->array_distance[j_plus] = euclideanDistance(cand, &archcand[m]);
+                j_plus++;
         
         }
     
     
     }
+        
+
+    
+    double max_distance = findMaximum(cand->array_distance, POP_SIZE+POP_SIZE);
+    for (int b = 0; b < POP_SIZE+POP_SIZE; b++){
+        if (cand->array_distance[b] == -1){
+            cand->array_distance[b] = max_distance+1;
+        }
+    }
     sort_array(cand->array_distance, POP_SIZE+POP_SIZE);
     cand->density_value = 1/(cand->array_distance[k]+2);
-    cand->overall_fitness = cand->fitness_raw + cand.density_value;
-
-    }
+    cand->overall_fitness = cand->fitness_raw + cand->density_value;
 }
 
 /*
@@ -682,7 +693,8 @@ reduced to a certain size, therefore the archive is initialized with
 POP_SIZE+POP_SIZE candidates This is done to avoid problems with the trunction
 process later on
 */
-void createemptyArchive(individual archcand[POP_SIZE]){
+
+void createEmptyArchive(individual archcand[POP_SIZE+POP_SIZE]){
     for (int i = 0; i < POP_SIZE+POP_SIZE; i++) { 
             archcand[i].valid = 0; // Initialize all candidates in the archive as invalid
         }
@@ -703,7 +715,8 @@ For all candidates in the population do the following:
 2. If the candidate is dominated, check if the archive is full or there is a candidate in the archive that has a higher overall fitness
 --> Replace the candidate in the archive with the dominated candidate if there is a candidate with a higher overall fitness
 --------------------------------------------------------------------------*/
-    for (int j = 0; j < POP_SIZE; j++) {
+    
+   for (int j = 0; j < POP_SIZE+POP_SIZE; j++) {
             archive_count = archive_count + archcand[j].valid; // Count valid candidates in the archive
         }
     for (int i = 0; i < POP_SIZE; i++) {
@@ -732,13 +745,14 @@ For all candidates in the population do the following:
                     
                 }
                 if (case1 == 0) { // If candidate is not added to archive
-                    for (y = 0; y < POP_SIZE+POP_SIZE; y++) {
+                    for (int y = 0; y < POP_SIZE+POP_SIZE; y++) {
                         if (archcand[y].valid == 0) {
                             archcand[y] = cand[i]; // Add candidate to archive if it is empty
-                            y = POP_SIZE+POP_SIZE; // Exit the loop after adding the candidate
+                             // Exit the loop after adding the candidate
                             archcand[y].valid = 1; // Mark candidate as valid
                             archive_count++;
                             case1 = 1; // Mark candidate as added to archive
+                            y = POP_SIZE+POP_SIZE;
                         }
                     }
 
@@ -750,8 +764,9 @@ For all candidates in the population do the following:
                 for (int y = 0; y < POP_SIZE+POP_SIZE; y++){
                     if (archcand[y].valid == 1 && archcand[y].overall_fitness > cand[i].overall_fitness) { // If there is a candidate in the archive with a higher overall fitness
                         archcand[y] = cand[i]; // Replace candidate in archive if it is dominated
-                        y = POP_SIZE+POP_SIZE; // Exit the loop after replacing the candidate
+                         // Exit the loop after replacing the candidate
                         archcand[y].valid = 1; // Mark candidate as valid
+                        y = POP_SIZE+POP_SIZE;
                     }
                 }
                 
@@ -767,7 +782,7 @@ Trunction process: Needed if overall size of the archive is bigger than POP_SIZE
 
 -----------------------------------------------------------------------------------------------------*/
    
-
+ printf("ARCHIVE COUNTr %d \n",archive_count);
 while (archive_count > POP_SIZE) {
     //In this case find the distances of the archive candidates to each other
         for (int k = 0; k < POP_SIZE+POP_SIZE; k++) {
@@ -776,11 +791,11 @@ while (archive_count > POP_SIZE) {
             }
         }
         for(int z = 0; z < POP_SIZE+POP_SIZE; z++){
-            double max_distance = 1000000000000000000000000000000000;
+            double max_distance = 10000000000000000;
             if (archcand[z].valid == 1){
                 for (int j = 0; j < POP_SIZE+POP_SIZE; j++){
                     if (archcand[j].valid == 1 && j != z) {
-                        archcand[z].array_distance[j] = euclidean_distance(archcand[z], archcand[j]); // Calculate distance between archive candidates
+                        archcand[z].array_distance[j] = euclideanDistance(&archcand[z], &archcand[j]); // Calculate distance between archive candidates
                     }      
 
                 }
@@ -814,9 +829,10 @@ while (archive_count > POP_SIZE) {
         
         if (candidate_count == 1) {
             archcand[candidates[0]].valid = 0; // Mark candidate as invalid
+             printf("REMOVE ARCHCAND %d \n",candidates[0]);
             archive_count--; // Decrease archive size
         }
-        else{
+        else if(candidate_count > 1){
             int best_index = candidates[0];
             for (int i = 1; i < candidate_count; i++) {
                 int cmp = compareArrays(archcand[candidates[i]].array_distance, archcand[best_index].array_distance, POP_SIZE+POP_SIZE);
@@ -825,62 +841,17 @@ while (archive_count > POP_SIZE) {
                 }
             }
             // Replace the candidate with the best index
+             printf("REMOVE ARCHCAND %d \n",best_index);
             archcand[best_index].valid = 0; // Mark candidate as invalid
             archive_count--; // Decrease archive size
         }
         
     }
 
-   
+ printf("ARCHIVE COUNTr AFTER %d \n",archive_count);   
 }
                 
                     
-            
-                
-
-
-
-
-
-
-// Function returns pointer to static array: [0] = min, [1] = 1 if unique, 0 if not
-double* findMinimum(const double arr[], int size) {
-    static double result[2];  // [0] = min, [1] = uniqueness flag
-
-    if (size <= 0) {
-        printf("Array is empty.\n");
-        result[0] = 0.0;
-        result[1] = 0.0;
-        return result;
-    }
-
-    double min = arr[0];
-    int count = 1;
-
-    for (int i = 1; i < size; i++) {
-        if (arr[i] < min) {
-            min = arr[i];
-            count = 1;
-        } else if (arr[i] == min) {
-            count++;
-        }
-    }
-
-    result[0] = min;
-    result[1] = (count == 1) ? 1.0 : 0.0;
-
-    return result;
-}
-
-
-
-
- 
-
-
-
-
-
 
 int tournamentSelection(individual *rival1, individual *rival2) {
     double prob = (double)rand() / RAND_MAX; /* Generate a random number between 0 and 1 */
@@ -889,7 +860,7 @@ int tournamentSelection(individual *rival1, individual *rival2) {
     //printf("rival 2 number %d \n",rival2->cand_num);
 
     if (prob >= TOURNM_PROP) { /* 95% chance to select the stronger candidate */
-        if (rival1->overall_fitness > rival2->overall_fitness) {
+       if (rival1->overall_fitness > rival2->overall_fitness) {
             best = rival2->cand_num;
         } else {
             best = rival1->cand_num;
@@ -898,14 +869,14 @@ int tournamentSelection(individual *rival1, individual *rival2) {
         prob = (double)rand() / RAND_MAX;
         if (prob >= TOURNM_PROP) {
             best = rival1->cand_num;
-        } else {
+       } else {
             best = rival2->cand_num;
         }
     }
 
     return best;
 }
-
+/*
 void createOffspring(individual offspring[2], individual cand[POP_SIZE]) {
  /*
 Function: createOffspring
@@ -916,8 +887,8 @@ Parameters:
 - offspring: An array of two individuals to store the newly created offspring.
  - cand: The population of candidates, represented as an array of individuals
 */   
-    int pot_parent0[2], pot_parent1[2], parent[2]; // Arrays for potential parents and final selected parents.
-    int z, t, g;
+ /*   int pot_parent0[2], pot_parent1[2], parent[2]; // Arrays for potential parents and final selected parents.
+ /*   int z, t, g;
 
     // Select two potential parents for each offspring using random indices
     for (z = 0; z < 2; z++) {
@@ -1020,16 +991,7 @@ Parameters:
     }
 }
 
-int compare_ints(const void* a, const void* b)
-{
-    int arg1 = *(const int*)a;
-    int arg2 = *(const int*)b;
- 
-    if (arg1 < arg2) return -1;
-    if (arg1 > arg2) return 1;
-    return 0;
-
-}
+*/
 void sort_array(double* array, int size) {
     int i, j;
     double temp;
@@ -1044,6 +1006,7 @@ void sort_array(double* array, int size) {
         }
     }
 }
+
 
 double euclideanDistance(individual *cand1, individual *cand2) {
     double distance = 0.0;
