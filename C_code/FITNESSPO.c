@@ -42,7 +42,7 @@ In this version the individuals are created differently:
 /* definitions for readability */
 /*******************************/
 #define POP_SIZE 20
-#define LOOP 10
+#define LOOP 4
 
 //defines the maximal and minimal number of children allowed in one class
 #define MIN_CLASS 8
@@ -122,7 +122,7 @@ void displaySol(individual cand, int class_size[]);/*shows the created candidate
 void classDistr(int num_class, individual *cand);/*creates a class distribution for a candidate*/
 void calcFitness(individual *cand); //calculates fitness for a candidate
 void createClasses(student stud[NUM_STUD], int class_size[NUM_CLASSES]);
-void createOffspring(individual offspring[2], individual cand[POP_SIZE]);
+void createOffspring(individual offspring[2], individual archcand[POP_SIZE+POP_SIZE],individual candall[POP_SIZE]);
 void calcSPEAFitness(int archive_boolean, individual *cand, individual archcand[POP_SIZE+POP_SIZE],individual candall[POP_SIZE]);
 void createEmptyArchive (individual archcand[POP_SIZE+POP_SIZE]);
 int tournamentSelection(individual *rival1, individual *rival2);
@@ -143,6 +143,10 @@ int main(void) {
 
     individual cand[POP_SIZE];
     individual archcand[POP_SIZE+POP_SIZE];
+    individual offspring[2];
+    offspring[0].cand_num = POP_SIZE+POP_SIZE;
+    offspring[1].cand_num = POP_SIZE+POP_SIZE+1;
+
     if (NUM_STUD < NUM_CLASSES * MIN_CLASS || NUM_STUD > NUM_CLASSES * MAX_CLASS) {
         printf("Error: Cannot assign %d students into %d classes within bounds [%d, %d].\n",
                NUM_STUD, NUM_CLASSES, MIN_CLASS, MAX_CLASS);
@@ -220,12 +224,15 @@ for ( int il = 1; il  < LOOP; il++){
     for (int numcand = 0; numcand < POP_SIZE+POP_SIZE; numcand++){
         if (archcand[numcand].valid == 1){
             printf("OVERALL SPEA FITNESS ARCHCAND %d : %f\n", numcand, archcand[numcand].overall_fitness);
+            archcand[numcand].cand_num = numcand;
         }
+    
         
         
     //  displaySol(cand[numcand], cand[numcand].class_sizes);
             
     }
+    createOffspring(offspring,archcand,cand);
     
 }
 
@@ -719,6 +726,7 @@ For all candidates in the population do the following:
    for (int j = 0; j < POP_SIZE+POP_SIZE; j++) {
             archive_count = archive_count + archcand[j].valid; // Count valid candidates in the archive
         }
+        printf("ARCHIVE COUNTr %d \n",archive_count);
     for (int i = 0; i < POP_SIZE; i++) {
         if (archive_count < POP_SIZE) { // If the archive is not full
                 for (int z = 0; z < POP_SIZE+POP_SIZE; z++) {
@@ -739,7 +747,10 @@ For all candidates in the population do the following:
                 
                     if (archcand[y].valid == 1 &&  archcand[y].overall_fitness >= 1){
                         archcand[y] = cand[i]; // Add candidate to archive if it is empty or dominated
+                        printf("Replace archcand %d with cand %d \n", y, i);
+                        archcand[y].valid = 1;
                         y = POP_SIZE+POP_SIZE; // Exit the loop after adding the candidate
+                        
                         case1 = 1;
                     }
                     
@@ -747,9 +758,11 @@ For all candidates in the population do the following:
                 if (case1 == 0) { // If candidate is not added to archive
                     for (int y = 0; y < POP_SIZE+POP_SIZE; y++) {
                         if (archcand[y].valid == 0) {
+
                             archcand[y] = cand[i]; // Add candidate to archive if it is empty
                              // Exit the loop after adding the candidate
                             archcand[y].valid = 1; // Mark candidate as valid
+                            printf("PUT  Cand %d in %d \n", i, y);
                             archive_count++;
                             case1 = 1; // Mark candidate as added to archive
                             y = POP_SIZE+POP_SIZE;
@@ -876,8 +889,8 @@ int tournamentSelection(individual *rival1, individual *rival2) {
 
     return best;
 }
-/*
-void createOffspring(individual offspring[2], individual cand[POP_SIZE]) {
+
+void createOffspring(individual offspring[2], individual archcand[POP_SIZE+POP_SIZE],individual candall[POP_SIZE]) {//ONLY CANDIDATED IN ARCHIVE ARE DOING THE MATING
  /*
 Function: createOffspring
 Description: This function generates two offspring using genetic algorithm operators: tournament selection, crossover, and mutation. 
@@ -887,31 +900,37 @@ Parameters:
 - offspring: An array of two individuals to store the newly created offspring.
  - cand: The population of candidates, represented as an array of individuals
 */   
- /*   int pot_parent0[2], pot_parent1[2], parent[2]; // Arrays for potential parents and final selected parents.
- /*   int z, t, g;
+    int pot_parent0[2], pot_parent1[2], parent[2]; // Arrays for potential parents and final selected parents.
+    int z, t, g;
 
     // Select two potential parents for each offspring using random indices
     for (z = 0; z < 2; z++) {
-        pot_parent0[z] = rand() % POP_SIZE;
-        pot_parent1[z] = rand() % POP_SIZE;
+        pot_parent0[z] = rand() % (POP_SIZE+POP_SIZE);
+        while (archcand[pot_parent0[z]].valid==0){
+            pot_parent0[z] = rand() % (POP_SIZE+POP_SIZE);
+        }
+        printf("Parent 0 %d is ArchCand %d \n", z ,pot_parent0[z]);
+        pot_parent1[z] = rand() % (POP_SIZE+POP_SIZE);
+        while (archcand[pot_parent1[z]].valid==0 || pot_parent1[z]== pot_parent0[z]){
+            pot_parent1[z] = rand() % (POP_SIZE+POP_SIZE);
+        }
+        printf("Parent 1 %d is ArchCand %d \n", z ,pot_parent1[z]);
     }
-     // Ensure the two selected parents are different
-    while (pot_parent0[0] == pot_parent0[1]) {pot_parent0[1] = rand() % POP_SIZE;}
-    while (pot_parent1[0] == pot_parent1[1]) {pot_parent1[1] = rand() % POP_SIZE;}
-
+     
     // TOURNAMENT SELECTION: Select the final parents based on fitness
-    parent[0] = tournamentSelection(&cand[pot_parent0[0]], &cand[pot_parent0[1]]);
-    parent[1] = tournamentSelection(&cand[pot_parent1[0]], &cand[pot_parent1[1]]);
-
+    parent[0] = tournamentSelection(&archcand[pot_parent0[0]], &archcand[pot_parent0[1]]);
+    printf("Parent 0 is ArchCand %d \n" ,parent[0]);
+    parent[1] = tournamentSelection(&archcand[pot_parent1[0]], &archcand[pot_parent1[1]]);
+    printf("Parent 1 is ArchCand %d \n" ,parent[1]);
     // CROSSOVER: Create offspring genomes by combining parts of the parents
     int crossover = rand() % NUM_STUD; // Random crossover point
     for (t = 0; t < crossover; t++) {
-        offspring[0].genome[t][CLASS_VALUE] = cand[parent[0]].genome[t][CLASS_VALUE];
-        offspring[1].genome[t][CLASS_VALUE] = cand[parent[1]].genome[t][CLASS_VALUE];
+        offspring[0].genome[t][CLASS_VALUE] = archcand[parent[0]].genome[t][CLASS_VALUE];
+        offspring[1].genome[t][CLASS_VALUE] = archcand[parent[1]].genome[t][CLASS_VALUE];
     }
     for (t = crossover; t < NUM_STUD; t++) {
-        offspring[0].genome[t][CLASS_VALUE] = cand[parent[1]].genome[t][CLASS_VALUE];
-        offspring[1].genome[t][CLASS_VALUE] = cand[parent[0]].genome[t][CLASS_VALUE];
+        offspring[0].genome[t][CLASS_VALUE] = archcand[parent[1]].genome[t][CLASS_VALUE];
+        offspring[1].genome[t][CLASS_VALUE] = archcand[parent[0]].genome[t][CLASS_VALUE];
     }
 
     // MUTATION: Introduce random mutations into the offspring genomes
@@ -922,9 +941,7 @@ Parameters:
         offspring[1].genome[mutation[g]][CLASS_VALUE] = rand() % NUM_CLASSES;
     }
 
-    // CALCULATE FITNESS: Compute the fitness of the offspring
-    calcFitness(&offspring[0]);
-    calcFitness(&offspring[1]);
+   
 
     // VALIDATION: Check if offspring satisfy class size constraints
     int i, class_valid0 = 1, class_valid1 = 1;
@@ -939,29 +956,33 @@ Parameters:
             class_valid1 = 0;
         }
     }
-
+     // CALCULATE FITNESS: Compute the fitness of the offspring
+    calcFitness(&offspring[0]);
+    calcFitness(&offspring[1]);
+    calcSPEAFitness(2,&offspring[0],archcand,candall); 
+    calcSPEAFitness(2,&offspring[1],archcand,candall);
 
     // REPLACEMENT: Replace parents with offspring if offspring are valid and fitter
     if (class_valid0 == 1) {
-        int besti = tournamentSelection(&cand[parent[0]], &offspring[0]);
+        int besti = tournamentSelection(&archcand[parent[0]], &offspring[0]);
         //printf("bestpp: %d \n",besti);
-         if (besti >= NUM_STUD){
-            offspring[0].cand_num = cand[parent[0]].cand_num;
-            //printf("Choose Offspring, for parent %d, fitness off = %lf; fitness parent = %lf \n ",parent[0],offspring[0].overall_fitness,cand[parent[0]].overall_fitness);
+         if (besti >= POP_SIZE+POP_SIZE){
+            offspring[0].cand_num = archcand[parent[0]].cand_num;
+            //("Choose Offspring, for parent %d, fitness off = %lf; fitness parent = %lf \n ",parent[0],offspring[0].overall_fitness,cand[parent[0]].overall_fitness);
         
             for(int i =0; i<NUM_ATTRIBUTES; i++){
                 for (int j = 0; j < NUM_STUD; j++)
                 {
-                    cand[parent[0]].genome[j][i] = offspring[0].genome[j][i] ;
+                    archcand[parent[0]].genome[j][i] = offspring[0].genome[j][i] ;
                 }
                 
 
 
             }
-            cand[parent[0]].overall_fitness = offspring[0].overall_fitness;
+            archcand[parent[0]].overall_fitness = offspring[0].overall_fitness;
             offspring[0].cand_num = NUM_STUD;
             for (int z = 0; z < NUM_CLASSES; z++){
-                 cand[parent[0]].class_sizes[z] = offspring[0].class_sizes[z];
+                 archcand[parent[0]].class_sizes[z] = offspring[0].class_sizes[z];
             }
             
         }
@@ -969,20 +990,20 @@ Parameters:
     
     }
     if (class_valid1 == 1) {
-        int besti = tournamentSelection(&cand[parent[1]], &offspring[1]);
+        int besti = tournamentSelection(&archcand[parent[1]], &offspring[1]);
         //printf("bestp2: %d \n",besti);
-        if (besti >= NUM_STUD){
-            offspring[1].cand_num = cand[parent[1]].cand_num;
+        if (besti >= POP_SIZE+POP_SIZE){
+            offspring[1].cand_num = archcand[parent[1]].cand_num;
             //printf("Choose Offspring for parent %d, fitness off = %lf; fitness parent = %lf \n",parent[1],offspring[1].overall_fitness, cand[parent[1]].overall_fitness);
                 for(int i =0; i<NUM_ATTRIBUTES; i++){
                 for (int j = 0; j < NUM_STUD; j++)
                 {
-                    cand[parent[1]].genome[j][i] = offspring[1].genome[j][i] ;
+                    archcand[parent[1]].genome[j][i] = offspring[1].genome[j][i] ;
                 }
             }
-            cand[parent[1]].overall_fitness = offspring[1].overall_fitness;
+            archcand[parent[1]].overall_fitness = offspring[1].overall_fitness;
             for (int z = 0; z < NUM_CLASSES; z++){
-                 cand[parent[0]].class_sizes[z] = offspring[0].class_sizes[z];
+                 archcand[parent[0]].class_sizes[z] = offspring[0].class_sizes[z];
             }
             offspring[1].cand_num = NUM_STUD+1;
         
@@ -991,7 +1012,7 @@ Parameters:
     }
 }
 
-*/
+
 void sort_array(double* array, int size) {
     int i, j;
     double temp;
